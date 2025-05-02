@@ -38,6 +38,15 @@
                         </li>
                     @endif
                 @endif
+                <!-- Home Instructor -->
+                @if (Route::is('cafeto.instructor.*'))
+                    @if (Auth::user()->havePermission('cafeto.instructor.index'))
+                        <li class="has-dropdown mega-dropdown active">
+                            <a href="{{ route('cafeto.instructor.index') }}" class="dropdown-toggle menu-item"><i
+                                    class="fa-solid fa-house"></i> {{ trans('cafeto::general.MainPage') }}</a>
+                        </li>
+                    @endif
+                @endif
 
                 <!-- Menú de opciones públicas -->
                 @if (Route::is('cefa.cafeto.*'))
@@ -172,7 +181,6 @@
                         <!-- .mega-dropdown-menu end -->
                     </li>
                 @endif
-
                 <!-- Menú de opciones para cajero -->
                 @if (Route::is('cafeto.cashier.*'))
                     <li class="has-dropdown mega-dropdown">
@@ -279,6 +287,36 @@
                         <!-- .mega-dropdown-menu end -->
                     </li>
                 @endif
+                <!-- Menú de opciones para instructor -->
+                @if (Route::is('cafeto.instructor.*'))
+                    <li class="has-dropdown mega-dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle menu-item"><i
+                                class="fa-solid fa-sitemap"></i> {{ trans('cafeto::general.Instructor') }}</a>
+                        <ul class="dropdown-menu mega-dropdown-menu">
+                            <li>
+                                <div class="container">
+                                    <div class="row">
+                                        <!-- Column #1 -->
+                                        <div class="col-md-3">
+                                            <a href="#">Formulaciones</a>
+                                            <ul>
+                                                <li>
+                                                    <a href="#">
+                                                        <i class="fa-solid fa-flask"></i> Registrar Formulaciones
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <!-- .col-md-3 end -->
+                                    </div>
+                                    <!-- .row end -->
+                                </div>
+                                <!-- container end -->
+                            </li>
+                        </ul>
+                        <!-- .mega-dropdown-menu end -->
+                    </li>
+                @endif
 
                 <!-- Mode User -->
                 @guest
@@ -294,6 +332,12 @@
                             <div class="module module-reservation pull-left">
                                 <a href="{{ route('cafeto.cashier.index') }}" class="btn-popup btn-popup-theme">
                                     {{ trans('cafeto::general.ModeC') }}</a>
+                            </div>
+                        @endif
+                        @if (checkRol('cafeto.instructor'))
+                            <div class="module module-reservation pull-left">
+                                <a href="{{ route('cafeto.instructor.index') }}" class="btn-popup btn-popup-theme">
+                                    {{ trans('cafeto::general.ModeI') }}</a>
                             </div>
                         @endif
                     @endauth
@@ -336,11 +380,18 @@
                                         </a>
                                     </li>
                                 @endif
-                                <li>
+                                @if (checkRol('cafeto.instructor'))
+                                    <li>
+                                        <a href="{{ route('cafeto.instructor.index') }}" class="menu-item">
+                                            <i class="fa-solid fa-chalkboard-teacher"></i> {{ trans('cafeto::general.ModeI') }}
+                                        </a>
+                                    </li>
+                                @endif
+                                {{-- <li>
                                     <a href="{{ route('cefa.cafeto.index') }}" class="menu-item">
                                         <i class="fa-regular fa-user"></i> {{ trans('cafeto::general.ModeU') }}
                                     </a>
-                                </li>
+                                </li> --}}
                             @endauth
                             <li>
                                 <a class="menu-item" href="{{ route('cefa.welcome') }}">

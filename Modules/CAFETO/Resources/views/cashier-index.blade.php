@@ -1,6 +1,7 @@
 @extends('cafeto::layouts.mainPage.master-mainPage')
 
 @push('head')
+    <title>{{ $view['titlePage'] }}</title>
 @endpush
 
 @section('content')
@@ -29,7 +30,7 @@
                             data-whitespace="nowrap" data-width="none" data-height="none"
                             data-frames='[{"delay":1750,"speed":1000,"frame":"0","from":"x:-50px;opacity:0;","to":"o:1;","ease":"Power3.easeInOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"Power3.easeInOut"}]'
                             data-splitin="none" data-splitout="none" data-responsive_offset="on">
-                            <div class="slide--headline">{{ trans('cafeto::mainPage.TitleWelcome') }}</div>
+                            <div class="slide--headline">{{ $view['titleView'] }}</div>
                         </div>
 
                         <!-- LAYER NR. 3 -->
@@ -37,6 +38,10 @@
                             data-width="none" data-height="none"
                             data-frames='[{"delay":2000,"speed":1000,"frame":"0","from":"y:50px;opacity:0;","to":"o:1;","ease":"Power3.easeInOut"},{"delay":"wait","speed":300,"frame":"999","to":"opacity:0;","ease":"Power3.easeInOut"}]'
                             data-splitin="none" data-splitout="none" data-responsive_offset="on">
+                            <div class="slide--bio text--center">
+                                {{ trans('cafeto::mainPage.CashierWelcome') }}<br>
+                                <small>{{ trans('cafeto::mainPage.RoleCashier') }}</small>
+                            </div>
                         </div>
 
                         <!-- LAYER NR. 4 -->
@@ -52,9 +57,10 @@
                             <div class="slide-action">
                                 <a class="btn btn--white btn--bordered btn--rounded btn--lg" href="#espresso-section"
                                     id="scroll-to-section">{{ trans('cafeto::mainPage.ViewProducts') }}</a>
+                                <a class="btn btn--white btn--bordered btn--rounded btn--lg" href="#"
+                                    style="margin-left: 10px;">{{ trans('cafeto::mainPage.ViewFormulations') }}</a>
                             </div>
                         </div>
-
                     </li>
 
                     <!-- slide 2 -->
@@ -148,7 +154,7 @@
                         data-afternoon-quote="{{ trans('cafeto::mainPage.AfternoonQuote') }}"
                         data-night-greeting="{{ trans('cafeto::mainPage.Night') }}"
                         data-night-quote="{{ trans('cafeto::mainPage.NightQuote') }}">
-                        <!-- Seccion para la frase segun la hora del dia -->
+                        <!-- Sección para la frase según la hora del día -->
                     </div>
                 </div>
                 <!-- .col-md-8 end -->
@@ -305,7 +311,7 @@
 @endsection
 
 @push('scripts')
-    <!-- Animacion que hace scroll hacia la seccion de especificada -->
+    <!-- Animación que hace scroll hacia la sección especificada -->
     <script>
         $(document).ready(function() {
             $("#scroll-to-section").click(function() {
@@ -317,7 +323,7 @@
         });
     </script>
 
-    <!-- Detecta la hora de ingreso y da una frase segun la jornada -->
+    <!-- Detecta la hora de ingreso y da una frase según la jornada -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var horaActual = new Date().getHours();

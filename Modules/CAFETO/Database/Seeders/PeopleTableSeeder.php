@@ -46,7 +46,7 @@ class PeopleTableSeeder extends Seeder
         // Consulta o registro de datos para Vilmer Andres Mendez Murcia (Líder de agroindustria)
         Person::firstOrCreate(['document_number' => 7723876], [ // Consultar o registrar Persona
             'document_type' => 'Cédula de ciudadanía',
-            'first_name' => 'VILMER ANDRES ',
+            'first_name' => 'VILMER ANDRES',
             'first_last_name' => 'MENDEZ',
             'second_last_name' => 'MURCIA',
             'eps_id' => $eps->id,
@@ -86,6 +86,16 @@ class PeopleTableSeeder extends Seeder
             'population_group_id' => $population_group->id,
             'pension_entity_id' => $pension_entity->id
         ]);
-        
+
+        // Consulta o registro de datos para Jesús David Quizá Roa (Instructor)
+        Person::firstOrCreate(['document_number' => 1077224582], [ // Consultar o registrar Persona
+            'document_type' => 'Cédula de ciudadanía',
+            'first_name' => 'JESÚS DAVID',
+            'first_last_name' => 'QUIZÁ',
+            'second_last_name' => 'ROA',
+            'eps_id' => $eps->id,
+            'population_group_id' => $population_group->id,
+            'pension_entity_id' => $pension_entity->id
+        ]);
     }
 }

@@ -6,10 +6,12 @@ use Illuminate\Routing\Controller;
 
 class CAFETOController extends Controller
 {
-
     public function index()
     {
-        $view = ['titlePage' => trans('cafeto::controllers.CAFETO_index_title_page'), 'titleView' => trans('cafeto::controllers.CAFETO_index_title_view')];
+        $view = [
+            'titlePage' => trans('cafeto::mainPage.TitlePage'),
+            'titleView' => trans('cafeto::mainPage.TitleWelcome')
+        ];
         return view('cafeto::index', compact('view'));
     }
 
@@ -41,5 +43,14 @@ class CAFETOController extends Controller
     {
         $view = ['titlePage' => trans('cafeto::controllers.CAFETO_cashier_title_page'), 'titleView' => trans('cafeto::controllers.CAFETO_cashier_title_view')];
         return view('cafeto::cashier-index', compact('view'));
+    }
+
+    public function instructor()
+    {
+        $view = [
+            'titlePage' => trans('cafeto::mainPage.TitlePage'),
+            'titleView' => trans('cafeto::mainPage.TitleWelcome')
+        ];
+        return view('cafeto::instructor-index', compact('view'));
     }
 }

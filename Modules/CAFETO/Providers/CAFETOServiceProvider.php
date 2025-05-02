@@ -3,35 +3,43 @@
 namespace Modules\CAFETO\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Config;
 
 class CAFETOServiceProvider extends ServiceProvider
 {
     /**
-     * @var string $moduleName
+     * The module name in uppercase.
+     *
+     * @var string
      */
     protected $moduleName = 'CAFETO';
 
     /**
-     * @var string $moduleNameLower
+     * The module name in lowercase.
+     *
+     * @var string
      */
     protected $moduleNameLower = 'cafeto';
 
     /**
-     * Boot the application events.
+     * Bootstrap any application services.
      *
      * @return void
      */
-    public function boot()
+    public function boot(Router $router)
     {
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+
+        // Register middleware
+        $router->aliasMiddleware('skip.csrf.formulations', \Modules\CAFETO\Http\Middleware\SkipCsrfForFormulations::class);
     }
 
     /**
-     * Register the service provider.
+     * Register any application services.
      *
      * @return void
      */
@@ -41,52 +49,51 @@ class CAFETOServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register config.
+     * Register the module's configuration.
      *
      * @return void
      */
     protected function registerConfig()
     {
+        $configPath = module_path($this->moduleName, 'Config/config.php');
+
         $this->publishes([
-            module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
+            $configPath => config_path("{$this->moduleNameLower}.php"),
         ], 'config');
-        $this->mergeConfigFrom(
-            module_path($this->moduleName, 'Config/config.php'), $this->moduleNameLower
-        );
+
+        $this->mergeConfigFrom($configPath, $this->moduleNameLower);
     }
 
     /**
-     * Register views.
+     * Register the module's views.
      *
      * @return void
      */
-    public function registerViews()
+    protected function registerViews()
     {
         $viewPath = resource_path('views/modules/' . $this->moduleNameLower);
-
         $sourcePath = module_path($this->moduleName, 'Resources/views');
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ], ['views', $this->moduleNameLower . '-module-views']);
+            $sourcePath => $viewPath,
+        ], ['views', "{$this->moduleNameLower}-module-views"]);
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->moduleNameLower);
     }
 
     /**
-     * Register translations.
+     * Register the module's translations.
      *
      * @return void
      */
-    public function registerTranslations()
+    protected function registerTranslations()
     {
         $langPath = resource_path('lang/modules/' . $this->moduleNameLower);
 
-        if (is_dir($langPath)) {
-            $this->loadTranslationsFrom($langPath, $this->moduleNameLower);
-        } else {
-            $this->loadTranslationsFrom(module_path($this->moduleName, 'Resources/lang'), $this->moduleNameLower);
-        }
+        $this->loadTranslationsFrom(
+            is_dir($langPath) ? $langPath : module_path($this->moduleName, 'Resources/lang'),
+            $this->moduleNameLower
+        );
     }
 
     /**
@@ -99,14 +106,21 @@ class CAFETOServiceProvider extends ServiceProvider
         return [];
     }
 
+    /**
+     * Get the paths for publishable views.
+     *
+     * @return array
+     */
     private function getPublishableViewPaths(): array
     {
         $paths = [];
-        foreach (\Config::get('view.paths') as $path) {
-            if (is_dir($path . '/modules/' . $this->moduleNameLower)) {
-                $paths[] = $path . '/modules/' . $this->moduleNameLower;
+        foreach (Config::get('view.paths', []) as $path) {
+            $moduleViewPath = "{$path}/modules/{$this->moduleNameLower}";
+            if (is_dir($moduleViewPath)) {
+                $paths[] = $moduleViewPath;
             }
         }
+
         return $paths;
     }
 }

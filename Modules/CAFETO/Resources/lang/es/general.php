@@ -4,7 +4,7 @@ return [
     //Navbar
 	'Home'             => 'Inicio',
 	'admin'            => 'Administrador',
-	'cashier'          => 'Cajero',
+	'cashier'          => 'Cajero/Pasante',
     'Language'         => 'Internacionalización',
     'English'          => 'Inglés',
     'Spanish'          => 'Español',
@@ -14,13 +14,15 @@ return [
 
     // Navbar MainPage
     'ModeA'            => 'Modo: Administrador',
-    'ModeC'            => 'Modo: Cajero',
+    'ModeC'            => 'Modo: Cajero/Pasante',
     'ModeU'            => 'Modo: Usuario',
+    'ModeI'            => 'Modo: Instructor',
     'MainPage'         => 'Inicio',
     'Information'      => 'Información',
     'AboutUs'          => 'Acerca de',
     'Developers'       => 'Desarrolladores',
     'Administration'   => 'Administración',
+    'Instructor'       => 'Permisos de Instructor',
     'Inventory'        => 'Inventario',
     'Elements'         => 'Adm. Elementos',
     'Sales'            => 'Ventas',
@@ -33,6 +35,8 @@ return [
     'Logout'           => 'Cerrar Sesión',
     'English'          => 'Inglés',
     'Spanish'          => 'Español',
+    'RoleCashier'      => 'Panel para Cajero',
+    'RoleIntern'       => 'Panel para Pasante',
 
     //Siderbar
     'Sales Point'      => 'Punto de Venta',
@@ -50,6 +54,7 @@ return [
     'Configuration'    => 'Configuración',
     'Developers'       => 'Desarrolladores',
     'About us'         => 'Acerca de',
+
 
     // ControlSidebar
     'Browse'           => 'Navega!',

@@ -4,7 +4,7 @@ return [
     //Navbar
 	'Home'             => 'Home',
 	'admin'            => 'Administrator',
-	'cashier'          => 'Cashier',
+	'cashier'          => 'Cashier/Intern',
     'Language'         => 'Internacionalization',
     'English'          => 'English',
     'Spanish'          => 'Spanish',
@@ -14,8 +14,9 @@ return [
     
     // Navbar MainPage
     'ModeA'            => 'Mode: Administrator',
-    'ModeC'            => 'Mode: Cashier',
+    'ModeC'            => 'Mode: Cashier/Intern',
     'ModeU'            => 'Mode: User',
+    'ModeI'            => 'Mode: Instructor',
     'MainPage'         => 'Main Page',
     'Information'      => 'Information',
     'AboutUs'          => 'About Us',
@@ -33,6 +34,8 @@ return [
     'Logout'           => 'Logout',
     'English'          => 'English',
     'Spanish'          => 'Spanish',
+    'RoleCashier'      => 'Dashboard for Cashier',
+    'RoleIntern'       => 'Dashboard for Intern',
 
     //Sidebar
     'Sales Point'      => 'Point of Sale',
@@ -50,6 +53,8 @@ return [
     'Configuration'    => 'Configuration',
     'Developers'       => 'Developers',
     'About us'         => 'About us',
+    'ViewFormulations' => 'View Formulations',
+    'RoleCashierIntern' => 'Dashboard for Cashier or Intern',
 
     // ControlSidebar
     'Browse'           => 'Browse!',
