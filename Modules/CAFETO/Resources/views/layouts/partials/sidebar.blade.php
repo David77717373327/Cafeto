@@ -12,7 +12,7 @@
         <div class="user-panel mt-3 pb-3 mb-1 d-flex">
             <div class="image">
                 @if (isset(Auth::user()->person->avatar))
-                    <img src="{{ asset('storage/' . Auth::user()->person->avatar) }}"class="img-circle elevation-2"
+                    <img src="{{ asset('storage/' . Auth::user()->person->avatar) }}" class="img-circle elevation-2"
                         alt="User Image">
                 @else
                     <img src="{{ asset('modules/sica/images/blanco.png') }}" class="img-circle elevation-2"
@@ -69,6 +69,18 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                 data-accordion="false">
+                <!-- Debug: Permission Check -->
+                @if (Route::is('cafeto.cashier.*'))
+                    <li class="nav-item">
+                        <p>Debug: Cashier route detected, Permission cafeto.cashier.formulations: {{ Auth::user()->havePermission('cafeto.cashier.formulations') ? 'true' : 'false' }}</p>
+                    </li>
+                @endif
+                @if (Route::is('cafeto.admin.*'))
+                    <li class="nav-item">
+                        <p>Debug: Admin route detected, Permission cafeto.admin.formulations: {{ Auth::user()->havePermission('cafeto.admin.formulations') ? 'true' : 'false' }}</p>
+                    </li>
+                @endif
+
                 <!-- Menú de opciones públicas -->
                 @if (Route::is('cefa.cafeto.*'))
                     <li class="nav-item">
@@ -144,7 +156,7 @@
                     @if (Auth::user()->havePermission('cafeto.admin.reports.index'))
                         <li class="nav-item">
                             <a href="{{ route('cafeto.admin.reports.index') }}"
-                                class="nav-link {{ !Route::is('cafeto.admin.reports.*') ?: 'active' }}">
+                                class="nav-link {{ !Route::is('cafeto.admin.reports.*') ?: 'active' }} text-light">
                                 <i class="nav-icon fa-solid fa-chart-column"></i>
                                 <p>{{ trans('cafeto::general.Reports Panel') }}</p>
                             </a>
@@ -153,7 +165,7 @@
                     @if (Auth::user()->havePermission('cafeto.admin.movements.index'))
                         <li class="nav-item">
                             <a href="{{ route('cafeto.admin.movements.index') }}"
-                                class="nav-link {{ !Route::is('cafeto.admin.movements.*') ?: 'active' }}">
+                                class="nav-link {{ !Route::is('cafeto.admin.movements.*') ?: 'active' }} text-light">
                                 <i class="nav-icon fa-solid fa-shuffle"></i>
                                 <p>{{ trans('cafeto::general.Movement History') }}</p>
                             </a>
@@ -162,9 +174,25 @@
                     @if (Auth::user()->havePermission('cafeto.admin.recipes.index'))
                         <li class="nav-item">
                             <a href="{{ route('cafeto.admin.recipes.index') }}"
-                                class="nav-link {{ !Route::is('cafeto.admin.recipes.*') ?: 'active' }}">
+                                class="nav-link {{ !Route::is('cafeto.admin.recipes.*') ?: 'active' }} text-light">
                                 <i class="nav-icon fa-solid fa-kitchen-set"></i>
                                 <p>{{ trans('cafeto::general.Recipes Control') }}</p>
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->havePermission('cafeto.admin.formulations'))
+                        <li class="nav-item">
+                            <a href="{{ route('cafeto.admin.formulations.index') }}"
+                                class="nav-link {{ !Route::is('cafeto.admin.formulations.*') ?: 'active' }} text-light">
+                                <i class="nav-icon fa-solid fa-flask"></i>
+                                <p>{{ trans('cafeto::formulations.Title') ?: 'Formulations' }}</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('cafeto.admin.formulations.create') }}"
+                                class="nav-link {{ !Route::is('cafeto.admin.formulations.create') ?: 'active' }} text-light">
+                                <i class="nav-icon fa-solid fa-plus"></i>
+                                <p>{{ trans('cafeto::formulations.Create') ?: 'Create Formulation' }}</p>
                             </a>
                         </li>
                     @endif
@@ -241,6 +269,22 @@
                                 class="nav-link {{ !Route::is('cafeto.cashier.recipes*') ?: 'active' }} text-light">
                                 <i class="nav-icon fa-solid fa-kitchen-set"></i>
                                 <p>{{ trans('cafeto::general.Recipes Control') }}</p>
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->havePermission('cafeto.cashier.formulations'))
+                        <li class="nav-item">
+                            <a href="{{ route('cafeto.cashier.formulations.index') }}"
+                                class="nav-link {{ !Route::is('cafeto.cashier.formulations.*') ?: 'active' }} text-light">
+                                <i class="nav-icon fa-solid fa-flask"></i>
+                                <p>{{ trans('cafeto::formulations.Title') ?: 'Formulations' }}</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('cafeto.cashier.formulations.create') }}"
+                                class="nav-link {{ !Route::is('cafeto.cashier.formulations.create') ?: 'active' }} text-light">
+                                <i class="nav-icon fa-solid fa-plus"></i>
+                                <p>{{ trans('cafeto::formulations.Create') ?: 'Create Formulation' }}</p>
                             </a>
                         </li>
                     @endif

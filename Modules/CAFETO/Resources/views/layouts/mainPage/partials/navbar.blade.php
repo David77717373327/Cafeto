@@ -50,7 +50,6 @@
 
                 <!-- Menú de opciones públicas -->
                 @if (Route::is('cefa.cafeto.*'))
-                    <!-- Info and credits -->
                     <li class="has-dropdown">
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle menu-item"
                             data-hover="shop">{{ trans('cafeto::general.Information') }}</a>
@@ -97,8 +96,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #2 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Sales') }}</a>
@@ -119,8 +116,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #3 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Control') }}</a>
@@ -141,8 +136,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #4 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Recipes') }}</a>
@@ -156,8 +149,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #5 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Configuration') }}</a>
@@ -171,14 +162,28 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
+                                        <!-- Column #6 -->
+                                        <div class="col-md-3">
+                                            <a href="{{ route('cafeto.admin.formulations.index') }}">{{ trans('cafeto::general.navbarForm') }}</a>
+                                            <ul>
+                                                @if (Auth::user()->havePermission('cafeto.admin.formulations'))
+                                                    <li>
+                                                        <a href="{{ route('cafeto.admin.formulations.index') }}">
+                                                            <i class="fa-solid fa-flask"></i>{{ trans('cafeto::general.Formulations') }}
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="{{ route('cafeto.admin.formulations.create') }}">
+                                                            <i class="fa-solid fa-plus"></i>{{ trans('cafeto::general.Create Formulation') }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <!-- .row end -->
                                 </div>
-                                <!-- container end -->
                             </li>
                         </ul>
-                        <!-- .mega-dropdown-menu end -->
                     </li>
                 @endif
                 <!-- Menú de opciones para cajero -->
@@ -203,8 +208,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #2 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Sales') }}</a>
@@ -225,8 +228,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #3 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Control') }}</a>
@@ -247,11 +248,9 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #4 -->
                                         <div class="col-md-3">
-                                            <a href="#">Recetario</a>
+                                            <a href="#">{{ trans('cafeto::general.Recipes') }}</a>
                                             <ul>
                                                 @if (Auth::user()->havePermission('cafeto.cashier.recipes.index'))
                                                     <li>
@@ -262,8 +261,6 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
-
                                         <!-- Column #5 -->
                                         <div class="col-md-3">
                                             <a href="#">{{ trans('cafeto::general.Configuration') }}</a>
@@ -277,14 +274,28 @@
                                                 @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
+                                        <!-- Column #6 -->
+                                        <div class="col-md-3">
+                                            <a href="#">{{ trans('cafeto::general.Formulations') }}</a>
+                                            <ul>
+                                                @if (Auth::user()->havePermission('cafeto.cashier.formulations'))
+                                                    <li>
+                                                        <a href="{{ route('cafeto.cashier.formulations.index') }}">
+                                                            <i class="fa-solid fa-flask"></i>{{ trans('cafeto::general.Formulations') }}
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="{{ route('cafeto.cashier.formulations.create') }}">
+                                                            <i class="fa-solid fa-plus"></i>{{ trans('cafeto::general.Create Formulation') }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <!-- .row end -->
                                 </div>
-                                <!-- container end -->
                             </li>
                         </ul>
-                        <!-- .mega-dropdown-menu end -->
                     </li>
                 @endif
                 <!-- Menú de opciones para instructor -->
@@ -298,23 +309,26 @@
                                     <div class="row">
                                         <!-- Column #1 -->
                                         <div class="col-md-3">
-                                            <a href="#">Formulaciones</a>
+                                            <a href="#">{{ trans('cafeto::general.Formulations') }}</a>
                                             <ul>
-                                                <li>
-                                                    <a href="#">
-                                                        <i class="fa-solid fa-flask"></i> Registrar Formulaciones
-                                                    </a>
-                                                </li>
+                                                @if (Auth::user()->havePermission('cafeto.instructor.formulations'))
+                                                    <li>
+                                                        <a href="{{ route('cafeto.instructor.formulations.index') }}">
+                                                            <i class="fa-solid fa-flask"></i>{{ trans('cafeto::general.Formulations') }}
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="{{ route('cafeto.instructor.formulations.create') }}">
+                                                            <i class="fa-solid fa-plus"></i>{{ trans('cafeto::general.Create Formulation') }}
+                                                        </a>
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
-                                        <!-- .col-md-3 end -->
                                     </div>
-                                    <!-- .row end -->
                                 </div>
-                                <!-- container end -->
                             </li>
                         </ul>
-                        <!-- .mega-dropdown-menu end -->
                     </li>
                 @endif
 
@@ -387,11 +401,6 @@
                                         </a>
                                     </li>
                                 @endif
-                                {{-- <li>
-                                    <a href="{{ route('cefa.cafeto.index') }}" class="menu-item">
-                                        <i class="fa-regular fa-user"></i> {{ trans('cafeto::general.ModeU') }}
-                                    </a>
-                                </li> --}}
                             @endauth
                             <li>
                                 <a class="menu-item" href="{{ route('cefa.welcome') }}">
