@@ -91,7 +91,7 @@ class PeopleTableSeeder extends Seeder
         Person::firstOrCreate(['document_number' => 1077224582], [ // Consultar o registrar Persona
             'document_type' => 'Cédula de ciudadanía',
             'first_name' => 'JESÚS DAVID',
-            'first_last_name' => 'QUIZÁ',
+            'first_last_name' => '',
             'second_last_name' => 'ROA',
             'eps_id' => $eps->id,
             'population_group_id' => $population_group->id,
