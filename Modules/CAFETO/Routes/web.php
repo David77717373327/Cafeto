@@ -1,106 +1,131 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\CAFETO\Http\Controllers\FormulationsController;
 
 
 Route::middleware(['lang'])->group(function () {
     Route::prefix('cafeto')->group(function () {
-        // Public and role-based views for CAFETO module
+        // Rutas generales para el módulo CAFETO
         Route::controller(CAFETOController::class)->group(function () {
-            Route::get('index', 'index')->name('cefa.cafeto.index'); // Main public dashboard
-            Route::get('developers', 'devs')->name('cefa.cafeto.devs'); // Developer credits page (public)
-            Route::get('information', 'info')->name('cefa.cafeto.info'); // Information page about CAFETO (public)
-            Route::get('admin', 'admin')->name('cafeto.admin.index'); // Admin dashboard (requires admin role)
-            Route::get('cashier', 'cashier')->name('cafeto.cashier.index'); // Cashier dashboard (requires cashier role)
-            Route::get('instructor', 'instructor')->name('cafeto.instructor.index'); // Instructor dashboard (requires instructor role)
-            Route::get('admin/configuration', 'configuration')->name('cafeto.admin.configuration.index'); // Admin configuration (e.g., printer testing)
-            Route::get('cashier/configuration', 'configuration')->name('cafeto.cashier.configuration.index'); // Cashier configuration (e.g., printer testing)
+            Route::get('index', 'index')->name('cefa.cafeto.index');
+            Route::get('developers', 'devs')->name('cefa.cafeto.devs');
+            Route::get('information', 'info')->name('cefa.cafeto.info');
+            Route::get('admin', 'admin')->name('cafeto.admin.index');
+            Route::get('cashier', 'cashier')->name('cafeto.cashier.index');
+            Route::get('instructor', 'instructor')->name('cafeto.instructor.index');
+            Route::get('admin/configuration', 'configuration')->name('cafeto.admin.configuration.index');
+            Route::get('cashier/configuration', 'configuration')->name('cafeto.cashier.configuration.index');
         });
 
-        // Inventory management routes
+        // Rutas para Inventario
         Route::controller(InventoryController::class)->group(function () {
-            Route::get('admin/inventory/index', 'index')->name('cafeto.admin.inventory.index'); // View current inventory (admin)
-            Route::get('cashier/inventory/index', 'index')->name('cafeto.cashier.inventory.index'); // View current inventory (cashier)
-            Route::get('admin/inventory/create', 'create')->name('cafeto.admin.inventory.create'); // Form to add inventory (admin)
-            Route::get('cashier/inventory/create', 'create')->name('cafeto.cashier.inventory.create'); // Form to add inventory (cashier)
-            Route::get('admin/inventory/status', 'status')->name('cafeto.admin.inventory.status'); // View expired/expiring products (admin)
-            Route::get('cashier/inventory/status', 'status')->name('cafeto.cashier.inventory.status'); // View expired/expiring products (cashier)
-            Route::get('admin/inventory/low', 'low_create')->name('cafeto.admin.inventory.low'); // Form to register inventory write-offs (admin)
-            Route::get('cashier/inventory/low', 'low_create')->name('cafeto.cashier.inventory.low'); // Form to register inventory write-offs (cashier)
+            Route::get('admin/inventory/index', 'index')->name('cafeto.admin.inventory.index');
+            Route::get('cashier/inventory/index', 'index')->name('cafeto.cashier.inventory.index');
+            Route::get('admin/inventory/create', 'create')->name('cafeto.admin.inventory.create');
+            Route::get('cashier/inventory/create', 'create')->name('cafeto.cashier.inventory.create');
+            Route::get('admin/inventory/status', 'status')->name('cafeto.admin.inventory.status');
+            Route::get('cashier/inventory/status', 'status')->name('cafeto.cashier.inventory.status');
+            Route::get('admin/inventory/low', 'low_create')->name('cafeto.admin.inventory.low');
+            Route::get('cashier/inventory/low', 'low_create')->name('cafeto.cashier.inventory.low');
 
-            // Inventory and sales reports
-            Route::get('admin/reports/index', 'reports')->name('cafeto.admin.reports.index'); // Main reports page (admin)
-            Route::get('cashier/reports/index', 'reports')->name('cafeto.cashier.reports.index'); // Main reports page (cashier)
-            Route::post('admin/reports/inventory/generatepdf', 'generateInventoryPDF')->name('cafeto.admin.reports.inventory.generate.pdf'); // Generate current inventory PDF (admin)
-            Route::post('cashier/reports/inventory/generatepdf', 'generateInventoryPDF')->name('cafeto.cashier.reports.inventory.generate.pdf'); // Generate current inventory PDF (cashier)
-            Route::get('admin/reports/inventory/entries', 'showInventoryEntriesForm')->name('cafeto.admin.reports.inventory.entries'); // Form for inventory entries by date (admin)
-            Route::get('cashier/reports/inventory/entries', 'showInventoryEntriesForm')->name('cafeto.cashier.reports.inventory.entries'); // Form for inventory entries by date (cashier)
-            Route::post('admin/reports/inventory/entries', 'generateInventoryEntries')->name('cafeto.admin.reports.generate.inventory.entries'); // Query inventory entries by date (admin)
-            Route::post('cashier/reports/inventory/entries', 'generateInventoryEntries')->name('cafeto.cashier.reports.generate.inventory.entries'); // Query inventory entries by date (cashier)
-            Route::post('admin/reports/inventory/entries/generatepdf', 'generateInventoryEntriesPDF')->name('cafeto.admin.reports.generate.entries.pdf'); // Generate inventory entries PDF (admin)
-            Route::post('cashier/reports/inventory/entries/generatepdf', 'generateInventoryEntriesPDF')->name('cafeto.cashier.reports.generate.entries.pdf'); // Generate inventory entries PDF (cashier)
-            Route::get('admin/reports/sales', 'showSalesForm')->name('cafeto.admin.reports.sales'); // Form for sales reports by date (admin)
-            Route::get('cashier/reports/sales', 'showSalesForm')->name('cafeto.cashier.reports.sales'); // Form for sales reports by date (cashier)
-            Route::post('admin/reports/sales', 'generateSales')->name('cafeto.admin.reports.generate.sales'); // Query sales by date (admin)
-            Route::post('cashier/reports/sales', 'generateSales')->name('cafeto.cashier.reports.generate.sales'); // Query sales by date (cashier)
-            Route::post('admin/reports/sales/generatepdf', 'generateSalesPDF')->name('cafeto.admin.reports.generate.sales.pdf'); // Generate sales PDF (admin)
-            Route::post('cashier/reports/sales/generatepdf', 'generateSalesPDF')->name('cafeto.cashier.reports.generate.sales.pdf'); // Generate sales PDF (cashier)
-            Route::get('admin/entries/show/{movement}', 'show_entry')->name('cafeto.admin.movements.entries.show'); // View inventory movement details (admin)
-            Route::get('cashier/entries/show/{movement}', 'show_entry')->name('cafeto.cashier.movements.entries.show'); // View inventory movement details (cashier)
-            Route::get('admin/low/show/{movement}', 'showLow')->name('cafeto.admin.movements.low.show'); // View inventory write-off details (admin)
-            Route::get('cashier/low/show/{movement}', 'showLow')->name('cafeto.cashier.movements.low.show'); // View inventory write-off details (cashier)
+            // Reportes
+            Route::get('admin/reports/index', 'reports')->name('cafeto.admin.reports.index');
+            Route::get('cashier/reports/index', 'reports')->name('cafeto.cashier.reports.index');
+            Route::post('admin/reports/inventory/generatepdf', 'generateInventoryPDF')->name('cafeto.admin.reports.inventory.generate.pdf');
+            Route::post('cashier/reports/inventory/generatepdf', 'generateInventoryPDF')->name('cafeto.cashier.reports.inventory.generate.pdf');
+            Route::get('admin/reports/inventory/entries', 'showInventoryEntriesForm')->name('cafeto.admin.reports.inventory.entries');
+            Route::get('cashier/reports/inventory/entries', 'showInventoryEntriesForm')->name('cafeto.cashier.reports.inventory.entries');
+            Route::post('admin/reports/inventory/entries', 'generateInventoryEntries')->name('cafeto.admin.reports.generate.inventory.entries');
+            Route::post('cashier/reports/inventory/entries', 'generateInventoryEntries')->name('cafeto.cashier.reports.generate.inventory.entries');
+            Route::post('admin/reports/inventory/entries/generatepdf', 'generateInventoryEntriesPDF')->name('cafeto.admin.reports.generate.entries.pdf');
+            Route::post('cashier/reports/inventory/entries/generatepdf', 'generateInventoryEntriesPDF')->name('cafeto.cashier.reports.generate.entries.pdf');
+            Route::get('admin/reports/sales', 'showSalesForm')->name('cafeto.admin.reports.sales');
+            Route::get('cashier/reports/sales', 'showSalesForm')->name('cafeto.cashier.reports.sales');
+            Route::post('admin/reports/sales', 'generateSales')->name('cafeto.admin.reports.generate.sales');
+            Route::post('cashier/reports/sales', 'generateSales')->name('cafeto.cashier.reports.generate.sales');
+            Route::post('admin/reports/sales/generatepdf', 'generateSalesPDF')->name('cafeto.admin.reports.generate.sales.pdf');
+            Route::post('cashier/reports/sales/generatepdf', 'generateSalesPDF')->name('cafeto.cashier.reports.generate.sales.pdf');
+            Route::get('admin/entries/show/{movement}', 'show_entry')->name('cafeto.admin.movements.entries.show');
+            Route::get('cashier/entries/show/{movement}', 'show_entry')->name('cafeto.cashier.movements.entries.show');
+            Route::get('admin/low/show/{movement}', 'showLow')->name('cafeto.admin.movements.low.show');
+            Route::get('cashier/low/show/{movement}', 'showLow')->name('cafeto.cashier.movements.low.show');
         });
 
-        // Sales management routes
+        // Rutas para Ventas
         Route::controller(SaleController::class)->group(function () {
-            Route::get('admin/sale/index', 'index')->name('cafeto.admin.sale.index'); // View sales for current cash session (admin)
-            Route::get('cashier/sale/index', 'index')->name('cafeto.cashier.sale.index'); // View sales for current cash session (cashier)
-            Route::get('admin/sale/register', 'register')->name('cafeto.admin.sale.register'); // Form to register a sale (admin)
-            Route::get('cashier/sale/register', 'register')->name('cafeto.cashier.sale.register'); // Form to register a sale (cashier)
-            Route::get('admin/sale/show/{movement}', 'show')->name('cafeto.admin.movements.sale.show'); // View sale details (admin)
-            Route::get('cashier/sale/show/{movement}', 'show')->name('cafeto.cashier.movements.sale.show'); // View sale details (cashier)
+            Route::get('admin/sale/index', 'index')->name('cafeto.admin.sale.index');
+            Route::get('cashier/sale/index', 'index')->name('cafeto.cashier.sale.index');
+            Route::get('admin/sale/register', 'register')->name('cafeto.admin.sale.register');
+            Route::get('cashier/sale/register', 'register')->name('cafeto.cashier.sale.register');
+            Route::get('admin/sale/show/{movement}', 'show')->name('cafeto.admin.movements.sale.show');
+            Route::get('cashier/sale/show/{movement}', 'show')->name('cafeto.cashier.movements.sale.show');
         });
 
-        // Product management routes
+        // Rutas para Elementos
         Route::controller(ElementController::class)->group(function () {
-            Route::get('admin/element/index', 'index')->name('cafeto.admin.element.index'); // View all products (admin)
-            Route::get('admin/element/edit/{element}', 'edit')->name('cafeto.admin.element.edit'); // Form to edit a product (admin)
-            Route::post('admin/element/update/{element}', 'update')->name('cafeto.admin.element.update'); // Update a product (admin)
-            Route::get('admin/element/create', 'create')->name('cafeto.admin.element.create'); // Form to create a product (admin)
-            Route::post('admin/element/store', 'store')->name('cafeto.admin.element.store'); // Store a new product (admin)
+            Route::get('admin/element/index', 'index')->name('cafeto.admin.element.index');
+            Route::get('admin/element/edit/{element}', 'edit')->name('cafeto.admin.element.edit');
+            Route::post('admin/element/update/{element}', 'update')->name('cafeto.admin.element.update');
+            Route::get('admin/element/create', 'create')->name('cafeto.admin.element.create');
+            Route::post('admin/element/store', 'store')->name('cafeto.admin.element.store');
         });
 
-        // Cash register management routes
+        // Rutas para Caja
         Route::controller(CashController::class)->group(function () {
-            Route::get('admin/cash/index', 'index')->name('cafeto.admin.cash.index'); // View active cash session and history (admin)
-            Route::get('cashier/cash/index', 'index')->name('cafeto.cashier.cash.index'); // View active cash session and history (cashier)
-            Route::post('admin/cash/store', 'store')->name('cafeto.admin.cash.store'); // Create a new cash session (admin)
-            Route::post('cashier/cash/store', 'store')->name('cafeto.cashier.cash.store'); // Create a new cash session (cashier)
-            Route::post('admin/cash/close', 'close')->name('cafeto.admin.cash.close'); // Close a cash session (admin)
-            Route::post('cashier/cash/close', 'close')->name('cafeto.cashier.cash.close'); // Close a cash session (cashier)
+            Route::get('admin/cash/index', 'index')->name('cafeto.admin.cash.index');
+            Route::get('cashier/cash/index', 'index')->name('cafeto.cashier.cash.index');
+            Route::post('admin/cash/store', 'store')->name('cafeto.admin.cash.store');
+            Route::post('cashier/cash/store', 'store')->name('cafeto.cashier.cash.store');
+            Route::post('admin/cash/close', 'close')->name('cafeto.admin.cash.close');
+            Route::post('cashier/cash/close', 'close')->name('cafeto.cashier.cash.close');
         });
 
-        // Movement history routes
+        // Rutas para Movimientos
         Route::controller(MovementController::class)->group(function () {
-            Route::get('admin/movement/index', 'index')->name('cafeto.admin.movements.index'); // View movement history (admin)
-            Route::get('cashier/movement/index', 'index')->name('cafeto.cashier.movements.index'); // View movement history (cashier)
-            Route::post('admin/movement/consult', 'consult')->name('cafeto.admin.movements.consult'); // Query movements by date and actor (admin)
-            Route::post('cashier/movement/consult', 'consult')->name('cafeto.cashier.movements.consult'); // Query movements by date and actor (cashier)
+            Route::get('admin/movement/index', 'index')->name('cafeto.admin.movements.index');
+            Route::get('cashier/movement/index', 'index')->name('cafeto.cashier.movements.index');
+            Route::post('admin/movement/consult', 'consult')->name('cafeto.admin.movements.consult');
+            Route::post('cashier/movement/consult', 'consult')->name('cafeto.cashier.movements.consult');
         });
 
-        // Recipe management routes
+        // Rutas para Recetas
         Route::controller(RecipesController::class)->group(function () {
-            Route::get('admin/recipes/index', 'index')->name('cafeto.admin.recipes.index'); // View all recipes (admin)
-            Route::get('cashier/recipes/index', 'index')->name('cafeto.cashier.recipes.index'); // View all recipes (cashier)
-            Route::get('admin/recipes/create', 'create')->name('cafeto.admin.recipes.create'); // Form to create a recipe (admin)
-            Route::get('cashier/recipes/create', 'create')->name('cafeto.cashier.recipes.create'); // Form to create a recipe (cashier)
-            Route::get('admin/recipes/details', 'details')->name('cafeto.admin.recipes.details'); // View recipe details (admin)
-            Route::get('cashier/recipes/details', 'details')->name('cafeto.cashier.recipes.details'); // View recipe details (cashier)
+            Route::get('admin/recipes/index', 'index')->name('cafeto.admin.recipes.index');
+            Route::get('cashier/recipes/index', 'index')->name('cafeto.cashier.recipes.index');
+            Route::get('admin/recipes/create', 'create')->name('cafeto.admin.recipes.create');
+            Route::get('cashier/recipes/create', 'create')->name('cafeto.cashier.recipes.create');
+            Route::get('admin/recipes/details', 'details')->name('cafeto.admin.recipes.details');
+            Route::get('cashier/recipes/details', 'details')->name('cafeto.cashier.recipes.details');
         });
-        Route::group(['prefix' => 'cashier', 'middleware' => ['auth', 'permission:cafeto.cashier.formulations.index']], function () {
-            Route::get('/formulations', [FormulationsController::class, 'index'])
-                ->name('cafeto.cashier.formulations.index')
-                ->middleware('skip.csrf.formulations');
+
+        // Rutas para Formulaciones
+        Route::controller(FormulationsController::class)->group(function () {
+            // Admin routes (full CRUD)
+            Route::get('admin/formulations/index', 'index')->name('cafeto.admin.formulations.index');
+            Route::get('admin/formulations/create', 'create')->name('cafeto.admin.formulations.create');
+            Route::post('admin/formulations/store', 'store')->name('cafeto.admin.formulations.store');
+            Route::get('admin/formulations/edit/{formulation}', 'edit')->name('cafeto.admin.formulations.edit');
+            Route::post('admin/formulations/update/{formulation}', 'update')->name('cafeto.admin.formulations.update');
+            Route::post('admin/formulations/approve/{formulation}', 'approve')->name('cafeto.admin.formulations.approve');
+            Route::delete('admin/formulations/delete/{formulation}', 'destroy')->name('cafeto.admin.formulations.destroy');
+            Route::get('admin/formulations/show/{formulation}', 'show')->name('cafeto.admin.formulations.show');
+
+            // Instructor routes (full CRUD)
+            Route::get('instructor/formulations/index', 'index')->name('cafeto.instructor.formulations.index');
+            Route::get('instructor/formulations/create', 'create')->name('cafeto.instructor.formulations.create');
+            Route::post('instructor/formulations/store', 'store')->name('cafeto.instructor.formulations.store');
+            Route::get('instructor/formulations/edit/{formulation}', 'edit')->name('cafeto.instructor.formulations.edit');
+            Route::post('instructor/formulations/update/{formulation}', 'update')->name('cafeto.instructor.formulations.update');
+            Route::post('instructor/formulations/approve/{formulation}', 'approve')->name('cafeto.instructor.formulations.approve');
+            Route::delete('instructor/formulations/delete/{formulation}', 'destroy')->name('cafeto.instructor.formulations.destroy');
+            Route::get('instructor/formulations/show/{formulation}', 'show')->name('cafeto.instructor.formulations.show');
+
+            // Cashier routes (create and view own formulations)
+            Route::get('cashier/formulations/index', 'index')->name('cafeto.cashier.formulations.index');
+            Route::get('cashier/formulations/create', 'create')->name('cafeto.cashier.formulations.create');
+            Route::post('cashier/formulations/store', 'store')->name('cafeto.cashier.formulations.store');
+            Route::get('cashier/formulations/show/{formulation}', 'show')->name('cafeto.cashier.formulations.show');
         });
     });
 });

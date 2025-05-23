@@ -134,7 +134,7 @@ return [
     'Btn_Register_Entry'  => 'Registrar Entrada',
     'Btn_Add_List'        => 'Agregar a la lista',
     'Btn_Low'             => 'Dar de baja',
-    'Btn_Generate_Ticket' => 'Generar Factura',
+    'Btn_Generate_Ticket' => 'Generar Comprobante',
     'Btn_Generate_PDF'    => 'Generar PDF',
 
     // Tooltips

@@ -36,6 +36,8 @@ return [
     // Menu
     'TitleMenu'       => 'Disfruta!',
     'TextMenu'        => 'Menú de Cafés',
+    'CashierWelcome'  => 'Bienvenido al sistema de Cafetería',
+    'RoleCashier'     => 'Rol de Cajero',
 
     // Products
     'TitlePopular'    => 'Populares en la estación',
