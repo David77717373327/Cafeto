@@ -75,7 +75,7 @@
                         <p>Debug: Cashier route detected, Permission cafeto.cashier.formulations: {{ Auth::user()->havePermission('cafeto.cashier.formulations') ? 'true' : 'false' }}</p>
                     </li>
                 @endif
-                @if (Route::is('cafeto.admin.*'))
+                @if (Route::is('cafeto.admin.*') || Route::is('cafeto.view.*'))
                     <li class="nav-item">
                         <p>Debug: Admin route detected, Permission cafeto.admin.formulations: {{ Auth::user()->havePermission('cafeto.admin.formulations') ? 'true' : 'false' }}</p>
                     </li>
@@ -107,7 +107,7 @@
                 @endif
 
                 <!-- Menú de opciones para administrador -->
-                @if (Route::is('cafeto.admin.*'))
+                @if (Route::is('cafeto.admin.*') || Route::is('cafeto.view.*'))
                     @if (Auth::user()->havePermission('cafeto.admin.index'))
                         <li class="nav-item">
                             <a href="{{ route('cafeto.admin.index') }}"

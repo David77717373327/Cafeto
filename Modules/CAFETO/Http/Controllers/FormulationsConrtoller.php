@@ -8,47 +8,52 @@ use Modules\AGROINDUSTRIA\Entities\Ingredient;
 use Modules\SICA\Entities\Element;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FormulationsController extends Controller
 {
-    // Mostrar lista de formulaciones
+    /**
+     * Display a listing of the formulations.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        // Obtener formulaciones según el rol del usuario
-        $user = Auth::user();
+        $user = $this->getAuthenticatedUser();
+
+        $formulations = collect(); // Empty collection by default
+
         if ($user->hasPermissionTo('cafeto.admin.formulations') || $user->hasPermissionTo('cafeto.instructor.formulations')) {
-            // Administrador e Instructor: todas las formulaciones
+            // Admin and Instructor: all formulations
             $formulations = Formulation::with(['element', 'ingredients.element'])->get();
-        } else {
-            // Cajero/Pasante: solo sus propias formulaciones
+        } elseif ($user->hasPermissionTo('cafeto.cashier.formulations')) {
+            // Cashier: only their own formulations
+            $person_id = $user->person ? $user->person->id : $user->id;
             $formulations = Formulation::with(['element', 'ingredients.element'])
-                ->where('person_id', $user->person->id ?? $user->id)
+                ->where('person_id', $person_id)
                 ->get();
+        } else {
+            abort(403, trans('cafeto::errors.unauthorized', ['action' => 'view formulations']));
         }
 
         return view('cafeto::formulations.index', [
             'formulations' => $formulations,
-            'view' => ['titlePage' => trans('cafeto::formulations.Title') ?: 'Formulations']
+            'view' => ['titlePage' => trans('cafeto::formulations.Title', [], 'Formulations')]
         ]);
     }
 
-    // Mostrar formulario para crear formulación
+    /**
+     * Show the form for creating a new formulation.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
-        // Verificar permisos (admin, instructor, cajero)
-        if (!$this->hasFormulationPermission()) {
-            abort(403, 'No autorizado');
-        }
+        $this->authorizeFormulationAccess();
 
-        // Obtener elementos (excluyendo insumos intermedios si existe el campo)
-        $elements = Element::where(function ($query) {
-            if (Schema::hasColumn('elements', 'is_intermediate')) {
-                $query->where('is_intermediate', false);
-            }
-        })->get();
+        $elements = Element::where('is_intermediate', false)->get();
 
-        // Unidades de medida hardcodeadas
         $units = [
             ['name' => 'Gramos', 'abbreviation' => 'g'],
             ['name' => 'Miligramos', 'abbreviation' => 'mg'],
@@ -58,45 +63,50 @@ class FormulationsController extends Controller
         return view('cafeto::formulations.create', [
             'elements' => $elements,
             'units' => $units,
-            'view' => ['titlePage' => trans('cafeto::formulations.Create') ?: 'Create Formulation']
+            'view' => ['titlePage' => trans('cafeto::formulations.Create', [], 'Create Formulation')]
         ]);
     }
 
-    // Guardar nueva formulación
+    /**
+     * Store a newly created formulation in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
-        // Verificar permisos
-        if (!$this->hasFormulationPermission()) {
-            abort(403, 'No autorizado');
-        }
+        $this->authorizeFormulationAccess();
 
-        // Validar datos de entrada
         $request->validate([
             'name' => 'required|string|max:255',
             'element_id' => 'nullable|exists:elements,id',
             'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
-            'ingredients' => 'required|array',
-            'ingredients.*.element_id' => 'required подняться
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.element_id' => 'required|exists:elements,id',
+            'ingredients.*.amount' => 'required|numeric|min:0',
+            'ingredients.*.unit' => 'required|in:g,mg,ml',
+        ], [
+            'ingredients.min' => trans('cafeto::formulations.validation.ingredients_required', [], 'At least one ingredient is required.')
+        ]);
 
-            // Obtener la unidad productiva (si existe)
-            $productiveUnitId = $this->getProductiveUnitId();
+        try {
+            DB::beginTransaction();
+            $user = $this->getAuthenticatedUser();
+            $productiveUnitId = $this->getProductiveUnitId($user);
+            $proccess = $user->hasPermissionTo('cafeto.cashier.formulations') ? 'pending' : 'approved';
+            $person_id = $user->person ? $user->person->id : $user->id;
 
-            // Determinar estado inicial
-            $proccess = Auth::user()->hasPermissionTo('cafeto.cashier.formulations') ? 'pending' : 'approved';
-
-            // Crear formulación
             $formulation = Formulation::create([
                 'name' => $request->name,
                 'element_id' => $request->element_id,
-                'person_id' => Auth::user()->person->id ?? Auth::id(),
+                'person_id' => $person_id,
                 'productive_unit_id' => $productiveUnitId,
                 'proccess' => $proccess,
                 'amount' => $request->amount,
                 'date' => $request->date,
             ]);
 
-            // Guardar ingredientes
             foreach ($request->ingredients as $ingredient) {
                 Ingredient::create([
                     'formulation_id' => $formulation->id,
@@ -106,71 +116,80 @@ class FormulationsController extends Controller
                 ]);
             }
 
-            return redirect()->route($this->getRedirectRoute() . '.formulations.index')
-                ->with('success', 'Formulación creada con éxito.');
+            DB::commit();
+            return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
+                ->with('success', trans('cafeto::formulations.Created', [], 'Formulation created successfully.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create formulation: ' . $e->getMessage(), ['user_id' => Auth::id()]);
+            return back()->withErrors(['error' => trans('cafeto::formulations.errors.create_failed', [], 'Failed to create formulation. Please try again.')]);
         }
+    }
 
-        // Mostrar formulario para editar formulación
-        public function edit(Formulation $formulation)
-        {
-            // Verificar permisos (solo admin e instructor)
-            if (!Auth::user()->hasPermissionTo('cafeto.admin.formulations') && !Auth::user()->hasPermissionTo('cafeto.instructor.formulations')) {
-                abort(403, 'No autorizado');
-            }
+    /**
+     * Show the form for editing the specified formulation.
+     *
+     * @param \Modules\AGROINDUSTRIA\Entities\Formulation $formulation
+     * @return \Illuminate\View\View
+     */
+    public function edit(Formulation $formulation)
+    {
+        $this->authorizeAdminOrInstructor();
 
-            $elements = Element::where(function ($query) {
-                if (Schema::hasColumn('elements', 'is_intermediate')) {
-                    $query->where('is_intermediate', false);
-                }
-            })->get();
+        $elements = Element::where('is_intermediate', false)->get();
 
-            $units = [
-                ['name' => 'Gramos', 'abbreviation' => 'g'],
-                ['name' => 'Miligramos', 'abbreviation' => 'mg'],
-                ['name' => 'Mililitros', 'abbreviation' => 'ml'],
-            ];
+        $units = [
+            ['name' => 'Gramos', 'abbreviation' => 'g'],
+            ['name' => 'Miligramos', 'abbreviation' => 'mg'],
+            ['name' => 'Mililitros', 'abbreviation' => 'ml'],
+        ];
 
-            return view('cafeto::formulations.edit', [
-                'formulation' => $formulation,
-                'elements' => $elements,
-                'units' => $units,
-                'view' => ['titlePage' => trans('cafeto::formulations.Edit') ?: 'Edit Formulation']
-            ]);
-        }
+        return view('cafeto::formulations.edit', [
+            'formulation' => $formulation->load('ingredients'),
+            'elements' => $elements,
+            'units' => $units,
+            'view' => ['titlePage' => trans('cafeto::formulations.Edit', [], 'Edit Formulation')]
+        ]);
+    }
 
-        // Actualizar formulación
-        public function update(Request $request, Formulation $formulation)
-        {
-            // Verificar permisos
-            if (!Auth::user()->hasPermissionTo('cafeto.admin.formulations') && !Auth::user()->hasPermissionTo('cafeto.instructor.formulations')) {
-                abort(403, 'No autorizado');
-            }
+    /**
+     * Update the specified formulation in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Modules\AGROINDUSTRIA\Entities\Formulation $formulation
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, Formulation $formulation)
+    {
+        $this->authorizeAdminOrInstructor();
 
-            // Validar datos
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'element_id' => 'nullable|exists:elements,id',
-                'amount' => 'required|numeric|min:0',
-                'date' => 'required|date',
-                'ingredients' => 'required|array',
-                'ingredients.*.element_id' => 'required|exists:elements,id',
-                'ingredients.*.amount' => 'required|numeric|min:0',
-                'ingredients.*.unit' => 'required|in:g,mg,ml',
-            ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'element_id' => 'nullable|exists:elements,id',
+            'amount' => 'required|numeric|min:0',
+            'date' => 'required|date',
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.element_id' => 'required|exists:elements,id',
+            'ingredients.*.amount' => 'required|numeric|min:0',
+            'ingredients.*.unit' => 'required|in:g,mg,ml',
+        ], [
+            'ingredients.min' => trans('cafeto::formulations.validation.ingredients_required', [], 'At least one ingredient is required.')
+        ]);
 
-            // Actualizar formulación
+        try {
+            DB::beginTransaction();
+            $user = $this->getAuthenticatedUser();
+
             $formulation->update([
                 'name' => $request->name,
                 'element_id' => $request->element_id,
                 'amount' => $request->amount,
                 'date' => $request->date,
-                'proccess' => $formulation->proccess, // Mantener estado actual
+                'proccess' => $formulation->proccess,
             ]);
 
-            // Eliminar ingredientes existentes
             $formulation->ingredients()->delete();
 
-            // Guardar nuevos ingredientes
             foreach ($request->ingredients as $ingredient) {
                 Ingredient::create([
                     'formulation_id' => $formulation->id,
@@ -180,78 +199,156 @@ class FormulationsController extends Controller
                 ]);
             }
 
-            return redirect()->route($this->getRedirectRoute() . '.formulations.index')
-                ->with('success', 'Formulación actualizada con éxito.');
-        }
-
-        // Aprobar formulación
-        public function approve(Formulation $formulation)
-        {
-            // Verificar permisos
-            if (!Auth::user()->hasPermissionTo('cafeto.admin.formulations') && !Auth::user()->hasPermissionTo('cafeto.instructor.formulations')) {
-                abort(403, 'No autorizado');
-            }
-
-            $formulation->update(['proccess' => 'approved']);
-
-            return redirect()->route($this->getRedirectRoute() . '.formulations.index')
-                ->with('success', 'Formulación aprobada con éxito.');
-        }
-
-        // Eliminar formulación
-        public function destroy(Formulation $formulation)
-        {
-            // Verificar permisos
-            if (!Auth::user()->hasPermissionTo('cafeto.admin.formulations') && !Auth::user()->hasPermissionTo('cafeto.instructor.formulations')) {
-                abort(403, 'No autorizado');
-            }
-
-            $formulation->delete();
-
-            return redirect()->route($this->getRedirectRoute() . '.formulations.index')
-                ->with('success', 'Formulación eliminada con éxito.');
-        }
-
-        // Mostrar detalles de formulación
-        public function show(Formulation $formulation)
-        {
-            // Verificar permisos
-            if (!$this->hasFormulationPermission()) {
-                abort(403, 'No autorizado');
-            }
-
-            return view('cafeto::formulations.show', [
-                'formulation' => $formulation,
-                'view' => ['titlePage' => trans('cafeto::formulations.Show') ?: 'Formulation Details']
-            ]);
-        }
-
-        // Helper para verificar permisos
-        private function hasFormulationPermission()
-        {
-            return Auth::user()->hasPermissionTo('cafeto.admin.formulations') ||
-                   Auth::user()->hasPermissionTo('cafeto.instructor.formulations') ||
-                   Auth::user()->hasPermissionTo('cafeto.cashier.formulations');
-        }
-
-        // Helper para obtener ruta de redirección según rol
-        private function getRedirectRoute()
-        {
-            if (Auth::user()->hasPermissionTo('cafeto.admin.formulations')) {
-                return 'cafeto.admin';
-            } elseif (Auth::user()->hasPermissionTo('cafeto.instructor.formulations')) {
-                return 'cafeto.instructor';
-            } else {
-                return 'cafeto.cashier';
-            }
-        }
-
-        // Helper para obtener el ID de la unidad productiva
-        private function getProductiveUnitId()
-        {
-            // Reemplazar con lógica real para obtener la unidad productiva
-            // Ejemplo: Obtener de la configuración del usuario o sistema
-            return 1; // Valor por defecto, ajustar según necesidades
+            DB::commit();
+            return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
+                ->with('success', trans('cafeto::formulations.Updated', [], 'Formulation updated successfully.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to update formulation: ' . $e->getMessage(), ['user_id' => Auth::id(), 'formulation_id' => $formulation->id]);
+            return back()->withErrors(['error' => trans('cafeto::formulations.errors.update_failed', [], 'Failed to update formulation. Please try again.')]);
         }
     }
-?>
+
+    /**
+     * Approve the specified formulation.
+     *
+     * @param \Modules\AGROINDUSTRIA\Entities\Formulation $formulation
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function approve(Formulation $formulation)
+    {
+        $this->authorizeAdminOrInstructor();
+
+        try {
+            $user = $this->getAuthenticatedUser();
+            $formulation->update(['proccess' => 'approved']);
+            return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
+                ->with('success', trans('cafeto::formulations.Approved', [], 'Formulation approved successfully.'));
+        } catch (\Exception $e) {
+            Log::error('Failed to approve formulation: ' . $e->getMessage(), ['user_id' => Auth::id(), 'formulation_id' => $formulation->id]);
+            return back()->withErrors(['error' => trans('cafeto::formulations.errors.approve_failed', [], 'Failed to approve formulation. Please try again.')]);
+        }
+    }
+
+    /**
+     * Remove the specified formulation from storage.
+     *
+     * @param \Modules\AGROINDUSTRIA\Entities\Formulation $formulation
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Formulation $formulation)
+    {
+        $this->authorizeAdminOrInstructor();
+
+        try {
+            $user = $this->getAuthenticatedUser();
+            $formulation->delete();
+            return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
+                ->with('success', trans('cafeto::formulations.Deleted', [], 'Formulation deleted successfully.'));
+        } catch (\Exception $e) {
+            Log::error('Failed to delete formulation: ' . $e->getMessage(), ['user_id' => Auth::id(), 'formulation_id' => $formulation->id]);
+            return back()->withErrors(['error' => trans('cafeto::formulations.errors.delete_failed', [], 'Failed to delete formulation. Please try again.')]);
+        }
+    }
+
+    /**
+     * Display the specified formulation.
+     *
+     * @param \Modules\AGROINDUSTRIA\Entities\Formulation $formulation
+     * @return \Illuminate\View\View
+     */
+    public function show(Formulation $formulation)
+    {
+        $user = $this->getAuthenticatedUser();
+
+        if ($user->hasPermissionTo('cafeto.cashier.formulations')) {
+            $person_id = $user->person ? $user->person->id : $user->id;
+            if ($formulation->person_id !== $person_id) {
+                abort(403, trans('cafeto::errors.unauthorized', ['action' => 'view this formulation']));
+            }
+        } elseif (!$user->hasPermissionTo('cafeto.admin.formulations') && !$user->hasPermissionTo('cafeto.instructor.formulations')) {
+            abort(403, trans('cafeto::errors.unauthorized', ['action' => 'view formulations']));
+        }
+
+        return view('cafeto::formulations.show', [
+            'formulation' => $formulation->load('ingredients.element', 'element'),
+            'view' => ['titlePage' => trans('cafeto::formulations.Show', [], 'Formulation Details')]
+        ]);
+    }
+
+    /**
+     * Get the authenticated user or abort if unauthenticated.
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable
+     */
+    private function getAuthenticatedUser()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403, trans('cafeto::errors.unauthenticated', [], 'Please log in to access this page.'));
+        }
+        return $user;
+    }
+
+    /**
+     * Authorize access for creating or viewing formulations.
+     *
+     * @return void
+     */
+    private function authorizeFormulationAccess()
+    {
+        $user = $this->getAuthenticatedUser();
+        if (!$user->hasPermissionTo('cafeto.admin.formulations') &&
+            !$user->hasPermissionTo('cafeto.instructor.formulations') &&
+            !$user->hasPermissionTo('cafeto.cashier.formulations')) {
+            abort(403, trans('cafeto::errors.unauthorized', ['action' => 'perform this action']));
+        }
+    }
+
+    /**
+     * Authorize access for admin or instructor actions (edit, update, approve, destroy).
+     *
+     * @return void
+     */
+    private function authorizeAdminOrInstructor()
+    {
+        $user = $this->getAuthenticatedUser();
+        if (!$user->hasPermissionTo('cafeto.admin.formulations') &&
+            !$user->hasPermissionTo('cafeto.instructor.formulations')) {
+            abort(403, trans('cafeto::errors.unauthorized', ['action' => 'perform this action']));
+        }
+    }
+
+    /**
+     * Get the redirect route prefix based on user role.
+     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * @return string
+     */
+    private function getRedirectRoute($user)
+    {
+        if ($user->hasPermissionTo('cafeto.admin.formulations')) {
+            return 'cafeto.admin';
+        } elseif ($user->hasPermissionTo('cafeto.instructor.formulations')) {
+            return 'cafeto.instructor';
+        } elseif ($user->hasPermissionTo('cafeto.cashier.formulations')) {
+            return 'cafeto.cashier';
+        }
+        Log::warning('User has no valid formulation permission for redirect', ['user_id' => $user->id]);
+        return 'cafeto.cashier'; // Default fallback
+    }
+
+    /**
+     * Get the productive unit ID for the user.
+     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * @return int|null
+     */
+    private function getProductiveUnitId($user)
+    {
+        if (!$user->productive_unit_id) {
+            Log::warning('User has no productive unit ID, using fallback', ['user_id' => $user->id]);
+        }
+        return $user->productive_unit_id ?? config('cafeto.default_productive_unit_id', 1);
+    }
+}

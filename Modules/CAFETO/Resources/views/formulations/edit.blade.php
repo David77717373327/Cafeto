@@ -69,7 +69,7 @@
 @section('content')
     <section class="formulations-container">
         <div class="container">
-            <h2 class="heading--title text-center" style="color: #4a3721;">{{ __('cafeto::general.Edit Formulation') }}: {{ $formulation->name }}</h2>
+            <h2 class="heading--title text-center" style="color: #4a3721;">{{ __('cafeto::general.Edit Formulation') }}: {{ $formulation->element ? $formulation->element->name : __('cafeto::general.None') }}</h2>
             @if ($errors->any())
                 <div class="alert-danger">
                     <ul>
@@ -81,26 +81,22 @@
             @endif
             <form action="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : 'instructor') . '.formulations.update', $formulation) }}" method="POST" class="formulation-form">
                 @csrf
+                @method('PATCH')
                 <div>
-                    <label>{{ __('cafeto::general.Name') }}:</label>
-                    <input type="text" name="name" value="{{ $formulation->name }}" required>
-                </div>
-                <div>
-                    <label>{{ __('cafeto::general.Element') }} ({{ __('cafeto::general.Optional') }}):</label>
-                    <select name="element_id">
-                        <option value="">{{ __('cafeto::general.None') }}</option>
+                    <label>{{ __('cafeto::general.Element') }}:</label>
+                    <select name="element_id" required>
                         @foreach ($elements as $element)
-                            <option value="{{ $element->id }}" {{ $formulation->element_id == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
+                            <option value="{{ $element->id }}" {{ old('element_id', $formulation->element_id) == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label>{{ __('cafeto::general.Amount') }}:</label>
-                    <input type="number" name="amount" step="0.01" value="{{ $formulation->amount }}" required>
+                    <input type="number" name="amount" value="{{ old('amount', $formulation->amount) }}" required min="0">
                 </div>
                 <div>
                     <label>{{ __('cafeto::general.Date') }}:</label>
-                    <input type="date" name="date" value="{{ $formulation->date }}" required>
+                    <input type="date" name="date" value="{{ old('date', $formulation->date) }}" required>
                 </div>
                 <div>
                     <h3>{{ __('cafeto::general.Ingredients') }}</h3>
@@ -109,15 +105,10 @@
                             <div class="ingredient-group">
                                 <select name="ingredients[{{ $index }}][element_id]" required>
                                     @foreach ($elements as $element)
-                                        <option value="{{ $element->id }}" {{ $ingredient->element_id == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
+                                        <option value="{{ $element->id }}" {{ old("ingredients.$index.element_id", $ingredient->element_id) == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
                                     @endforeach
                                 </select>
-                                <input type="number" name="ingredients[{{ $index }}][amount]" step="0.01" value="{{ $ingredient->amount }}" required placeholder="{{ __('cafeto::general.Amount') }}">
-                                <select name="ingredients[{{ $index }}][unit]" required>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit['abbreviation'] }}">{{ $unit['name'] }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="number" name="ingredients[{{ $index }}][amount]" value="{{ old("ingredients.$index.amount", $ingredient->amount) }}" required placeholder="{{ __('cafeto::general.Amount') }}" min="0">
                             </div>
                         @endforeach
                     </div>
@@ -125,6 +116,7 @@
                 </div>
                 <div class="text-center" style="margin-top: 20px;">
                     <button type="submit" class="btn-custom">{{ __('cafeto::general.Update') }}</button>
+                    <a href="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : 'instructor') . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
                 </div>
             </form>
         </div>
@@ -142,12 +134,7 @@
                         <option value="{{ $element->id }}">{{ $element->name }}</option>
                     @endforeach
                 </select>
-                <input type="number" name="ingredients[${ingredientCount}][amount]" step="0.01" required placeholder="{{ __('cafeto::general.Amount') }}">
-                <select name="ingredients[${ingredientCount}][unit]" required>
-                    @foreach ($units as $unit)
-                        <option value="{{ $unit['abbreviation'] }}">{{ $unit['name'] }}</option>
-                    @endforeach
-                </select>
+                <input type="number" name="ingredients[${ingredientCount}][amount]" required placeholder="{{ __('cafeto::general.Amount') }}" min="0">
             `;
             container.appendChild(div);
             ingredientCount++;

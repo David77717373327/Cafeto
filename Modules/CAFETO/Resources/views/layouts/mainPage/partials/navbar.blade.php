@@ -15,15 +15,15 @@
             <ul class="nav navbar-nav nav-pos-right navbar-left">
                 <!-- Home público -->
                 @if (Route::is('cefa.cafeto.*'))
-                    <li class="has-dropdown mega-dropdown active">
+                    <li class="has-dropdown mega-dropdown {{ Route::is('cefa.cafeto.index') ? 'active' : '' }}">
                         <a href="{{ route('cefa.cafeto.index') }}" class="dropdown-toggle menu-item"><i
                                 class="fa-solid fa-house"></i> {{ trans('cafeto::general.MainPage') }}</a>
                     </li>
                 @endif
                 <!-- Home Administrador -->
-                @if (Route::is('cafeto.admin.*'))
+                @if (Route::is('cafeto.admin.*') || Route::is('cafeto.view.*'))
                     @if (Auth::user()->havePermission('cafeto.admin.index'))
-                        <li class="has-dropdown mega-dropdown active">
+                        <li class="has-dropdown mega-dropdown {{ Route::is('cafeto.admin.index') ? 'active' : '' }}">
                             <a href="{{ route('cafeto.admin.index') }}" class="dropdown-toggle menu-item"><i
                                     class="fa-solid fa-house"></i> {{ trans('cafeto::general.MainPage') }}</a>
                         </li>
@@ -32,7 +32,7 @@
                 <!-- Home Cashier -->
                 @if (Route::is('cafeto.cashier.*'))
                     @if (Auth::user()->havePermission('cafeto.cashier.index'))
-                        <li class="has-dropdown mega-dropdown active">
+                        <li class="has-dropdown mega-dropdown {{ Route::is('cafeto.cashier.index') ? 'active' : '' }}">
                             <a href="{{ route('cafeto.cashier.index') }}" class="dropdown-toggle menu-item"><i
                                     class="fa-solid fa-house"></i> {{ trans('cafeto::general.MainPage') }}</a>
                         </li>
@@ -41,7 +41,7 @@
                 <!-- Home Instructor -->
                 @if (Route::is('cafeto.instructor.*'))
                     @if (Auth::user()->havePermission('cafeto.instructor.index'))
-                        <li class="has-dropdown mega-dropdown active">
+                        <li class="has-dropdown mega-dropdown {{ Route::is('cafeto.instructor.index') ? 'active' : '' }}">
                             <a href="{{ route('cafeto.instructor.index') }}" class="dropdown-toggle menu-item"><i
                                     class="fa-solid fa-house"></i> {{ trans('cafeto::general.MainPage') }}</a>
                         </li>
@@ -68,7 +68,7 @@
                     </li>
                 @endif
                 <!-- Menú de opciones para administrador -->
-                @if (Route::is('cafeto.admin.*'))
+                @if (Route::is('cafeto.admin.*') || Route::is('cafeto.view.*'))
                     <li class="has-dropdown mega-dropdown">
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle menu-item"><i
                                 class="fa-solid fa-sitemap"></i> {{ trans('cafeto::general.Administration') }}</a>
@@ -164,11 +164,11 @@
                                         </div>
                                         <!-- Column #6 -->
                                         <div class="col-md-3">
-                                            <a href="{{ route('cafeto.admin.formulations.index') }}">{{ trans('cafeto::general.navbarForm') }}</a>
+                                            <a href="{{ route('cafeto.views.formulations.index') }}">{{ trans('cafeto::general.navbarForm') }}</a>
                                             <ul>
                                                 @if (Auth::user()->havePermission('cafeto.admin.formulations'))
                                                     <li>
-                                                        <a href="{{ route('cafeto.admin.formulations.index') }}">
+                                                        <a href="{{ route('cafeto.views.formulations.index') }}">
                                                             <i class="fa-solid fa-flask"></i>{{ trans('cafeto::general.Formulations') }}
                                                         </a>
                                                     </li>

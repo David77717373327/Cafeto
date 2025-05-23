@@ -1,4 +1,3 @@
-
 <nav id="primary-menu" class="navbar navbar-fixed-top">
     <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -147,6 +146,11 @@
                                                             <i class="fa-solid fa-flask"></i> {{ trans('cafeto::general.Formulations') }}
                                                         </a>
                                                     </li>
+                                                    <li>
+                                                        <a href="{{ route('cafeto.admin.formulations.create') }}">
+                                                            <i class="fa-solid fa-plus"></i> {{ trans('cafeto::general.Create Formulation') }}
+                                                        </a>
+                                                    </li>
                                                 @endif
                                             </ul>
                                         </div>
@@ -198,7 +202,7 @@
                                                 @if (Auth::user()->havePermission('cafeto.cashier.sale.index'))
                                                     <li>
                                                         <a href="{{ route('cafeto.cashier.sale.index') }}">
-                                                            <i class="fa-solid fa-cart-shopping"></i> {{ trans('cafete::general.Sales') }}
+                                                            <i class="fa-solid fa-cart-shopping"></i> {{ trans('cafeto::general.Sales') }}
                                                         </a>
                                                     </li>
                                                 @endif
@@ -241,6 +245,11 @@
                                                             <i class="fa-solid fa-flask"></i> {{ trans('cafeto::general.Formulations') }}
                                                         </a>
                                                     </li>
+                                                    <li>
+                                                        <a href="{{ route('cafeto.cashier.formulations.create') }}">
+                                                            <i class="fa-solid fa-plus"></i> {{ trans('cafeto::general.Create Formulation') }}
+                                                        </a>
+                                                    </li>
                                                 @endif
                                             </ul>
                                         </div>
@@ -274,7 +283,7 @@
                                     <div class="row">
                                         <!-- Column #1 -->
                                         <div class="col-md-3">
-                                            <a href="#">{{ trans('cafeto::general.Formulations') }}</a>
+                                            <a href="">{{ trans('cafeto::general.Formulations') }}</a>
                                             <ul>
                                                 @if (Auth::user()->havePermission('cafeto.instructor.formulations'))
                                                     <li>
@@ -374,6 +383,7 @@
                             </li>
                             <li>
                                 <a class="menu-item" href="{{ route('logout') }}"
+                                    onclick a href="{{ route('logout') }}"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fa-solid fa-right-to-bracket"></i> {{ trans('cafeto::general.Logout') }}
                                 </a>

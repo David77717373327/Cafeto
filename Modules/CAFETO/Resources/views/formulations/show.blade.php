@@ -58,20 +58,20 @@
 @section('content')
     <section class="formulations-container">
         <div class="container">
-            <h2 class="heading--title text-center" style="color: #4a3721;">{{ __('cafeto::general.Formulation Details') }}: {{ $formulation->name }}</h2>
+            <h2 class="heading--title text-center" style="color: #4a3721;">{{ __('cafeto::general.Formulation Details') }}: {{ $formulation->element ? $formulation->element->name : __('cafeto::general.None') }}</h2>
             <div class="formulation-details">
                 <p><strong>{{ __('cafeto::general.Status') }}:</strong> {{ $formulation->proccess }}</p>
-                <p><strong>{{ __('cafeto::general.Amount') }}:</strong> {{ $formulation->amount }}</p>
+                <p><strong>{{ __('cafeto::general.Amount') }}:</strong> {{ $formulation->amount }} {{ __('cafeto::general.units') }}</p>
                 <p><strong>{{ __('cafeto::general.Date') }}:</strong> {{ $formulation->date }}</p>
                 <p><strong>{{ __('cafeto::general.Element') }}:</strong> {{ $formulation->element ? $formulation->element->name : __('cafeto::general.None') }}</p>
                 <h3>{{ __('cafeto::general.Ingredients') }}</h3>
                 <ul>
                     @foreach ($formulation->ingredients as $ingredient)
-                        <li>{{ $ingredient->element->name }}: {{ $ingredient->amount }} {{ $ingredient->unit ?? 'unidad' }}</li>
+                        <li>{{ $ingredient->element->name }}: {{ $ingredient->amount }} {{ __('cafeto::general.units') }}</li>
                     @endforeach
                 </ul>
                 <div class="text-center" style="margin-top: 20px;">
-                    <a href="{{ route('cafeto.' . $this->getRedirectRoute() . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
+                    <a href="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : (Auth::user()->hasPermissionTo('cafeto.instructor.formulations') ? 'instructor' : 'cashier')) . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
                 </div>
             </div>
         </div>
