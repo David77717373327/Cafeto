@@ -622,7 +622,7 @@ class PermissionsTableSeeder extends Seeder
         ]);
         
         // Gestión de formulaciones (Instructor)
-        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations'], [
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.index'], [
             'name' => 'Gestión de formulaciones (Instructor)',
             'description' => 'Permite ver, crear, editar, actualizar, aprobar, eliminar y consultar detalles de formulaciones',
             'description_english' => 'Allows viewing, creating, editing, updating, approving, deleting, and viewing details of formulations',
@@ -683,6 +683,16 @@ class PermissionsTableSeeder extends Seeder
             'app_id' => $app->id
         ]);
         $permissions_instructor[] = $permission->id;
+        // Ver formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.index'], [
+            'name' => 'Ver formulaciones (Instructor)',
+            'description' => 'Permite ver formulaciones',
+            'description_english' => 'Allows viewing formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+        // Ver formulaciones (Instructor)
+
 
         // Ver detalles de formulaciones (Instructor)
         $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.show'], [
@@ -692,6 +702,8 @@ class PermissionsTableSeeder extends Seeder
             'app_id' => $app->id
         ]);
         $permissions_instructor[] = $permission->id;
+
+
 
 
         // Gestión de formulaciones (Cajero)

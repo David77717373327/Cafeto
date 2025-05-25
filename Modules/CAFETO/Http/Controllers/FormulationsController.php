@@ -3,6 +3,7 @@
 namespace Modules\CAFETO\Http\Controllers;
 
 use Illuminate\Routing\Controller;
+
 use Modules\AGROINDUSTRIA\Entities\Formulation;
 use Modules\AGROINDUSTRIA\Entities\Ingredient;
 use Modules\SICA\Entities\Element;
@@ -142,23 +143,25 @@ class FormulationsController extends Controller
      */
     public function edit(Formulation $formulation)
     {
+       
         $this->authorizeAdminOrInstructor();
 
-        $elements = Element::where('is_intermediate', false)->get();
+    $elements = Element::all(); // Changed from where('is_intermediate', false)
 
-        $units = [
-            ['name' => 'Gramos', 'abbreviation' => 'g'],
-            ['name' => 'Miligramos', 'abbreviation' => 'mg'],
-            ['name' => 'Mililitros', 'abbreviation' => 'ml'],
-        ];
+    $units = [
+        ['name' => 'Gramos', 'abbreviation' => 'g'],
+        ['name' => 'Miligramos', 'abbreviation' => 'mg'],
+        ['name' => 'Mililitros', 'abbreviation' => 'ml'],
+    ];
 
-        return view('cafeto::formulations.edit', [
-            'formulation' => $formulation->load('ingredients'),
-            'elements' => $elements,
-            'units' => $units,
-            'view' => ['titlePage' => trans('cafeto::formulations.Edit', [], 'Edit Formulation')]
-        ]);
-    }
+    return view('cafeto::formulations.edit', [
+        'formulation' => $formulation->load('ingredients'),
+        'elements' => $elements,
+        'units' => $units,
+        'view' => ['titlePage' => trans('cafeto::formulations.Edit', [], 'Edit Formulation')]
+    ]);
+}
+
 
     /**
      * Update the specified formulation in storage.
@@ -168,54 +171,52 @@ class FormulationsController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Formulation $formulation)
-    {
-        $this->authorizeAdminOrInstructor();
+{
+    $this->authorizeAdminOrInstructor();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'element_id' => 'nullable|exists:elements,id',
-            'amount' => 'required|numeric|min:0',
-            'date' => 'required|date',
-            'ingredients' => 'required|array|min:1',
-            'ingredients.*.element_id' => 'required|exists:elements,id',
-            'ingredients.*.amount' => 'required|numeric|min:0',
-            'ingredients.*.unit' => 'required|in:g,mg,ml',
-        ], [
-            'ingredients.min' => trans('cafeto::formulations.validation.ingredients_required', [], 'At least one ingredient is required.')
+    $request->validate([
+        'element_id' => 'nullable|exists:elements,id',
+        'amount' => 'required|numeric|min:0',
+        'date' => 'required|date',
+        'ingredients' => 'required|array|min:1',
+        'ingredients.*.element_id' => 'required|exists:elements,id',
+        'ingredients.*.amount' => 'required|numeric|min:0',
+        'ingredients.*.unit' => 'required|in:g,mg,ml',
+    ], [
+        'ingredients.min' => trans('cafeto::formulations.validation.ingredients_required', [], 'At least one ingredient is required.')
+    ]);
+
+    try {
+        DB::beginTransaction();
+        $user = $this->getAuthenticatedUser();
+
+        $formulation->update([
+            'element_id' => $request->element_id,
+            'amount' => $request->amount,
+            'date' => $request->date,
+            'proccess' => $formulation->proccess,
         ]);
 
-        try {
-            DB::beginTransaction();
-            $user = $this->getAuthenticatedUser();
+        $formulation->ingredients()->delete();
 
-            $formulation->update([
-                'name' => $request->name,
-                'element_id' => $request->element_id,
-                'amount' => $request->amount,
-                'date' => $request->date,
-                'proccess' => $formulation->proccess,
+        foreach ($request->ingredients as $ingredient) {
+            Ingredient::create([
+                'formulation_id' => $formulation->id,
+                'element_id' => $ingredient['element_id'],
+                'amount' => $ingredient['amount'],
+                'unit' => $ingredient['unit'],
             ]);
-
-            $formulation->ingredients()->delete();
-
-            foreach ($request->ingredients as $ingredient) {
-                Ingredient::create([
-                    'formulation_id' => $formulation->id,
-                    'element_id' => $ingredient['element_id'],
-                    'amount' => $ingredient['amount'],
-                    'unit' => $ingredient['unit'],
-                ]);
-            }
-
-            DB::commit();
-            return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
-                ->with('success', trans('cafeto::formulations.Updated', [], 'Formulation updated successfully.'));
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to update formulation: ' . $e->getMessage(), ['user_id' => Auth::id(), 'formulation_id' => $formulation->id]);
-            return back()->withErrors(['error' => trans('cafeto::formulations.errors.update_failed', [], 'Failed to update formulation. Please try again.')]);
         }
+
+        DB::commit();
+        return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
+            ->with('success', trans('cafeto::formulations.Updated', [], 'Formulation updated successfully.'));
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to update formulation: ' . $e->getMessage(), ['user_id' => Auth::id(), 'formulation_id' => $formulation->id]);
+        return back()->withErrors(['error' => trans('cafeto::formulations.errors.update_failed', [], 'Failed to update formulation. Please try again.')]);
     }
+}
 
     /**
      * Approve the specified formulation.

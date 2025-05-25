@@ -71,7 +71,7 @@
                     @endforeach
                 </ul>
                 <div class="text-center" style="margin-top: 20px;">
-                    <a href="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : (Auth::user()->hasPermissionTo('cafeto.instructor.formulations') ? 'instructor' : 'cashier')) . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
+                    <a href="{{ route('cafeto.' . (Auth::user()->roles->pluck('slug')->contains('cafeto.admin') ? 'admin' : (Auth::user()->roles->pluck('slug')->contains('cafeto.instructor') ? 'instructor' : 'cashier')) . '.formulations.index') }}" class="btn btn-custom">{{ __('cafeto::general.Back to Formulations') }}</a>
                 </div>
             </div>
         </div>

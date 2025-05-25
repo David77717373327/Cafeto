@@ -79,20 +79,24 @@
                     </ul>
                 </div>
             @endif
-            <form action="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : 'instructor') . '.formulations.update', $formulation) }}" method="POST" class="formulation-form">
+            <form action="{{ route('cafeto.' . (Auth::user()->roles->pluck('slug')->contains('cafeto.admin') ? 'admin' : 'instructor') . '.formulations.update', $formulation) }}" method="POST" class="formulation-form">
                 @csrf
-                @method('PATCH')
-                <div>
-                    <label>{{ __('cafeto::general.Element') }}:</label>
-                    <select name="element_id" required>
-                        @foreach ($elements as $element)
-                            <option value="{{ $element->id }}" {{ old('element_id', $formulation->element_id) == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @method('POST')
+               <div>
+    <label>{{ __('cafeto::general.Element') }}:</label>
+    <select name="element_id">
+        <option value="">{{ __('cafeto::general.None') }}</option>
+        @foreach ($elements as $element)
+            <option value="{{ $element->id }}" {{ old('element_id', $formulation->element_id) == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
+        @endforeach
+    </select>
+    @error('element_id')
+        <span class="text-danger">{{ $message }}</span>
+    @enderror
+</div>
                 <div>
                     <label>{{ __('cafeto::general.Amount') }}:</label>
-                    <input type="number" name="amount" value="{{ old('amount', $formulation->amount) }}" required min="0">
+                    <input type="number" name="amount" value="{{ old('amount', $formulation->amount) }}" required min="0" step="0.01">
                 </div>
                 <div>
                     <label>{{ __('cafeto::general.Date') }}:</label>
@@ -108,7 +112,12 @@
                                         <option value="{{ $element->id }}" {{ old("ingredients.$index.element_id", $ingredient->element_id) == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
                                     @endforeach
                                 </select>
-                                <input type="number" name="ingredients[{{ $index }}][amount]" value="{{ old("ingredients.$index.amount", $ingredient->amount) }}" required placeholder="{{ __('cafeto::general.Amount') }}" min="0">
+                                <input type="number" name="ingredients[{{ $index }}][amount]" value="{{ old("ingredients.$index.amount", $ingredient->amount) }}" required placeholder="{{ __('cafeto::general.Amount') }}" min="0" step="0.01">
+                                <select name="ingredients[{{ $index }}][unit]" required>
+                                    <option value="g" {{ old("ingredients.$index.unit", $ingredient->unit) == 'g' ? 'selected' : '' }}>{{ __('cafeto::general.Grams') }}</option>
+                                    <option value="mg" {{ old("ingredients.$index.unit", $ingredient->unit) == 'mg' ? 'selected' : '' }}>{{ __('cafeto::general.Milligrams') }}</option>
+                                    <option value="ml" {{ old("ingredients.$index.unit", $ingredient->unit) == 'ml' ? 'selected' : '' }}>{{ __('cafeto::general.Milliliters') }}</option>
+                                </select>
                             </div>
                         @endforeach
                     </div>
@@ -116,7 +125,7 @@
                 </div>
                 <div class="text-center" style="margin-top: 20px;">
                     <button type="submit" class="btn-custom">{{ __('cafeto::general.Update') }}</button>
-                    <a href="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : 'instructor') . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
+                    <a href="{{ route('cafeto.' . (Auth::user()->roles->pluck('slug')->contains('cafeto.admin') ? 'admin' : 'instructor') . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
                 </div>
             </form>
         </div>
@@ -134,7 +143,12 @@
                         <option value="{{ $element->id }}">{{ $element->name }}</option>
                     @endforeach
                 </select>
-                <input type="number" name="ingredients[${ingredientCount}][amount]" required placeholder="{{ __('cafeto::general.Amount') }}" min="0">
+                <input type="number" name="ingredients[${ingredientCount}][amount]" required placeholder="{{ __('cafeto::general.Amount') }}" min="0" step="0.01">
+                <select name="ingredients[${ingredientCount}][unit]" required>
+                    <option value="g">{{ __('cafeto::general.Grams') }}</option>
+                    <option value="mg">{{ __('cafeto::general.Milligrams') }}</option>
+                    <option value="ml">{{ __('cafeto::general.Milliliters') }}</option>
+                </select>
             `;
             container.appendChild(div);
             ingredientCount++;
