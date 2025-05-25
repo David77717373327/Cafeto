@@ -2,7 +2,7 @@
 
 namespace Modules\CAFETO\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use Modules\AGROINDUSTRIA\Entities\Formulation;
 use Modules\AGROINDUSTRIA\Entities\Ingredient;
 use Modules\SICA\Entities\Element;
@@ -22,13 +22,12 @@ class FormulationsController extends Controller
     {
         $user = $this->getAuthenticatedUser();
 
-        $formulations = collect(); // Empty collection by default
+        $formulations = collect();
 
-        if ($user->hasPermissionTo('cafeto.admin.formulations') || $user->hasPermissionTo('cafeto.instructor.formulations')) {
-            // Admin and Instructor: all formulations
+        $roles = $user->roles->pluck('slug')->toArray();
+        if (in_array('cafeto.admin', $roles) || in_array('cafeto.instructor', $roles)) {
             $formulations = Formulation::with(['element', 'ingredients.element'])->get();
-        } elseif ($user->hasPermissionTo('cafeto.cashier.formulations')) {
-            // Cashier: only their own formulations
+        } elseif (in_array('cafeto.cashier', $roles) || in_array('cafeto.cashier_intern', $roles)) {
             $person_id = $user->person ? $user->person->id : $user->id;
             $formulations = Formulation::with(['element', 'ingredients.element'])
                 ->where('person_id', $person_id)
@@ -49,23 +48,24 @@ class FormulationsController extends Controller
      * @return \Illuminate\View\View
      */
     public function create()
-    {
-        $this->authorizeFormulationAccess();
+{
+    $this->authorizeFormulationAccess();
 
-        $elements = Element::where('is_intermediate', false)->get();
+    // Cambiar a Element::all() o usar otro criterio de filtrado si es necesario
+    $elements = Element::all();
 
-        $units = [
-            ['name' => 'Gramos', 'abbreviation' => 'g'],
-            ['name' => 'Miligramos', 'abbreviation' => 'mg'],
-            ['name' => 'Mililitros', 'abbreviation' => 'ml'],
-        ];
+    $units = [
+        ['name' => 'Gramos', 'abbreviation' => 'g'],
+        ['name' => 'Miligramos', 'abbreviation' => 'mg'],
+        ['name' => 'Mililitros', 'abbreviation' => 'ml'],
+    ];
 
-        return view('cafeto::formulations.create', [
-            'elements' => $elements,
-            'units' => $units,
-            'view' => ['titlePage' => trans('cafeto::formulations.Create', [], 'Create Formulation')]
-        ]);
-    }
+    return view('cafeto::formulations.create', [
+        'elements' => $elements,
+        'units' => $units,
+        'view' => ['titlePage' => trans('cafeto::formulations.Create', [], 'Create Formulation')]
+    ]);
+}
 
     /**
      * Store a newly created formulation in storage.
@@ -74,57 +74,65 @@ class FormulationsController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
-    {
-        $this->authorizeFormulationAccess();
+{
+    \Log::info('Starting store method', $request->all());
+    $this->authorizeFormulationAccess();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'element_id' => 'nullable|exists:elements,id',
-            'amount' => 'required|numeric|min:0',
-            'date' => 'required|date',
-            'ingredients' => 'required|array|min:1',
-            'ingredients.*.element_id' => 'required|exists:elements,id',
-            'ingredients.*.amount' => 'required|numeric|min:0',
-            'ingredients.*.unit' => 'required|in:g,mg,ml',
-        ], [
-            'ingredients.min' => trans('cafeto::formulations.validation.ingredients_required', [], 'At least one ingredient is required.')
+    $request->validate([
+        
+        'element_id' => 'nullable|exists:elements,id',
+        'amount' => 'required|numeric|min:0',
+        'date' => 'required|date',
+        'ingredients' => 'required|array|min:1',
+        'ingredients.*.element_id' => 'required|exists:elements,id',
+        'ingredients.*.amount' => 'required|numeric|min:0',
+        'ingredients.*.unit' => 'required|in:g,mg,ml',
+    ], [
+        'ingredients.min' => trans('cafeto::formulations.validation.ingredients_required', [], 'At least one ingredient is required.')
+    ]);
+
+    try {
+        \Log::info('Starting transaction');
+        DB::beginTransaction();
+        $user = $this->getAuthenticatedUser();
+        \Log::info('User data', ['user_id' => $user->id, 'person_id' => $user->person ? $user->person->id : $user->id]);
+        $productiveUnitId = $this->getProductiveUnitId($user);
+        \Log::info('Productive unit ID', ['productive_unit_id' => $productiveUnitId]);
+        $roles = $user->roles->pluck('slug')->toArray();
+        $proccess = in_array('cafeto.cashier', $roles) || in_array('cafeto.cashier_intern', $roles) ? 'pending' : 'approved';
+        $person_id = $user->person ? $user->person->id : $user->id;
+
+        $formulation = Formulation::create([
+            
+            'element_id' => $request->element_id,
+            'person_id' => $person_id,
+            'productive_unit_id' => $productiveUnitId,
+            'proccess' => $proccess,
+            'amount' => $request->amount,
+            'date' => $request->date,
         ]);
+        \Log::info('Formulation created', ['formulation_id' => $formulation->id]);
 
-        try {
-            DB::beginTransaction();
-            $user = $this->getAuthenticatedUser();
-            $productiveUnitId = $this->getProductiveUnitId($user);
-            $proccess = $user->hasPermissionTo('cafeto.cashier.formulations') ? 'pending' : 'approved';
-            $person_id = $user->person ? $user->person->id : $user->id;
-
-            $formulation = Formulation::create([
-                'name' => $request->name,
-                'element_id' => $request->element_id,
-                'person_id' => $person_id,
-                'productive_unit_id' => $productiveUnitId,
-                'proccess' => $proccess,
-                'amount' => $request->amount,
-                'date' => $request->date,
+        foreach ($request->ingredients as $ingredient) {
+            \Log::info('Creating ingredient', $ingredient);
+            Ingredient::create([
+                'formulation_id' => $formulation->id,
+                'element_id' => $ingredient['element_id'],
+                'amount' => $ingredient['amount'],
+                'unit' => $ingredient['unit'],
             ]);
-
-            foreach ($request->ingredients as $ingredient) {
-                Ingredient::create([
-                    'formulation_id' => $formulation->id,
-                    'element_id' => $ingredient['element_id'],
-                    'amount' => $ingredient['amount'],
-                    'unit' => $ingredient['unit'],
-                ]);
-            }
-
-            DB::commit();
-            return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
-                ->with('success', trans('cafeto::formulations.Created', [], 'Formulation created successfully.'));
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to create formulation: ' . $e->getMessage(), ['user_id' => Auth::id()]);
-            return back()->withErrors(['error' => trans('cafeto::formulations.errors.create_failed', [], 'Failed to create formulation. Please try again.')]);
         }
+
+        DB::commit();
+        \Log::info('Transaction committed', ['formulation_id' => $formulation->id]);
+        return redirect()->route($this->getRedirectRoute($user) . '.formulations.index')
+            ->with('success', trans('cafeto::formulations.Created', [], 'Formulation created successfully.'));
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Failed to create formulation', ['error' => $e->getMessage(), 'user_id' => Auth::id(), 'request' => $request->all()]);
+        return back()->withErrors(['error' => trans('cafeto::formulations.errors.create_failed', [], 'Failed to create formulation. Please try again.')]);
     }
+}
 
     /**
      * Show the form for editing the specified formulation.
@@ -261,12 +269,13 @@ class FormulationsController extends Controller
     {
         $user = $this->getAuthenticatedUser();
 
-        if ($user->hasPermissionTo('cafeto.cashier.formulations')) {
+        $roles = $user->roles->pluck('slug')->toArray();
+        if (in_array('cafeto.cashier', $roles) || in_array('cafeto.cashier_intern', $roles)) {
             $person_id = $user->person ? $user->person->id : $user->id;
             if ($formulation->person_id !== $person_id) {
                 abort(403, trans('cafeto::errors.unauthorized', ['action' => 'view this formulation']));
             }
-        } elseif (!$user->hasPermissionTo('cafeto.admin.formulations') && !$user->hasPermissionTo('cafeto.instructor.formulations')) {
+        } elseif (!in_array('cafeto.admin', $roles) && !in_array('cafeto.instructor', $roles)) {
             abort(403, trans('cafeto::errors.unauthorized', ['action' => 'view formulations']));
         }
 
@@ -298,9 +307,11 @@ class FormulationsController extends Controller
     private function authorizeFormulationAccess()
     {
         $user = $this->getAuthenticatedUser();
-        if (!$user->hasPermissionTo('cafeto.admin.formulations') &&
-            !$user->hasPermissionTo('cafeto.instructor.formulations') &&
-            !$user->hasPermissionTo('cafeto.cashier.formulations')) {
+        $roles = $user->roles->pluck('slug')->toArray();
+        if (!in_array('cafeto.admin', $roles) &&
+            !in_array('cafeto.instructor', $roles) &&
+            !in_array('cafeto.cashier', $roles) &&
+            !in_array('cafeto.cashier_intern', $roles)) {
             abort(403, trans('cafeto::errors.unauthorized', ['action' => 'perform this action']));
         }
     }
@@ -313,8 +324,8 @@ class FormulationsController extends Controller
     private function authorizeAdminOrInstructor()
     {
         $user = $this->getAuthenticatedUser();
-        if (!$user->hasPermissionTo('cafeto.admin.formulations') &&
-            !$user->hasPermissionTo('cafeto.instructor.formulations')) {
+        $roles = $user->roles->pluck('slug')->toArray();
+        if (!in_array('cafeto.admin', $roles) && !in_array('cafeto.instructor', $roles)) {
             abort(403, trans('cafeto::errors.unauthorized', ['action' => 'perform this action']));
         }
     }
@@ -327,11 +338,12 @@ class FormulationsController extends Controller
      */
     private function getRedirectRoute($user)
     {
-        if ($user->hasPermissionTo('cafeto.admin.formulations')) {
+        $roles = $user->roles->pluck('slug')->toArray();
+        if (in_array('cafeto.admin', $roles)) {
             return 'cafeto.admin';
-        } elseif ($user->hasPermissionTo('cafeto.instructor.formulations')) {
+        } elseif (in_array('cafeto.instructor', $roles)) {
             return 'cafeto.instructor';
-        } elseif ($user->hasPermissionTo('cafeto.cashier.formulations')) {
+        } elseif (in_array('cafeto.cashier', $roles) || in_array('cafeto.cashier_intern', $roles)) {
             return 'cafeto.cashier';
         }
         Log::warning('User has no valid formulation permission for redirect', ['user_id' => $user->id]);

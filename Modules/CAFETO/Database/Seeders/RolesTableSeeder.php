@@ -9,17 +9,9 @@ use Modules\SICA\Entities\Role;
 
 class RolesTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        // Consultar aplicación SICA para registrar los roles
         $app = App::where('name', 'CAFETO')->firstOrFail();
-
-        // Consultar rol de superadministrador
         $rol_superadmin = Role::where('slug', 'superadmin')->firstOrFail();
 
         // Registrar o actualizar rol de ADMINISTRADOR
@@ -49,16 +41,27 @@ class RolesTableSeeder extends Seeder
             'app_id' => $app->id
         ]);
 
-        // Consulta de usuarios
-        $user_admin = User::where('nickname', 'LFHerre')->firstOrFail(); // Usuario Administrador (Lola Fernanda Herrera Hernandez)
-        $user_cashier = User::where('nickname', 'Resmerveilons')->firstOrFail(); // Usuario Cajero/Pasante (Manuel Steven Ossa Lievano)
-        $user_superadmin = User::where('nickname', 'JDGM0331')->firstOrFail(); // Usuario Super Administrador (Jesús David Guevara Munar)
-        $user_instructor = User::where('nickname', 'InstructorJesu')->firstOrFail(); // Usuario Instructor (Jesús David Quizá Roa)
+        // Registrar o actualizar rol de CAJERO PASANTE
+        $rol_cashier_intern = Role::updateOrCreate(['slug' => 'cafeto.cashier_intern'], [
+            'name' => 'Cajero Pasante',
+            'description' => 'Rol de cajero pasante de la aplicación CAFETO',
+            'description_english' => 'CAFETO application cashier intern role',
+            'full_access' => 'no',
+            'app_id' => $app->id
+        ]);
 
-        // Asignación de ROLES para los USUARIOS de la aplicación CAFETO (Sincronización de las relaciones sin eliminar las relaciones existentes)
+        // Consulta de usuarios
+        $user_admin = User::where('nickname', 'LFHerre')->firstOrFail();
+        $user_cashier = User::where('nickname', 'Resmerveilons')->firstOrFail();
+        $user_superadmin = User::where('nickname', 'JDGM0331')->firstOrFail();
+        $user_instructor = User::where('nickname', 'InstructorJesu')->firstOrFail();
+        $user_cashier_intern = User::where('nickname', 'SofiaAscencio')->firstOrFail();
+
+        // Asignación de ROLES para los USUARIOS
         $user_admin->roles()->syncWithoutDetaching([$rol_admin->id]);
         $user_cashier->roles()->syncWithoutDetaching([$rol_cashier->id]);
         $user_superadmin->roles()->syncWithoutDetaching([$rol_superadmin->id]);
         $user_instructor->roles()->syncWithoutDetaching([$rol_instructor->id]);
+        $user_cashier_intern->roles()->syncWithoutDetaching([$rol_cashier_intern->id]);
     }
 }

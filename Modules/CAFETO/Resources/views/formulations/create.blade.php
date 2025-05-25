@@ -79,7 +79,12 @@
                     </ul>
                 </div>
             @endif
-            <form action="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : (Auth::user()->hasPermissionTo('cafeto.instructor.formulations') ? 'instructor' : 'cashier')) . '.formulations.store') }}" method="POST" class="formulation-form">
+            @php
+                $user = Auth::user();
+                $roles = $user->roles->pluck('slug')->toArray();
+                $routePrefix = in_array('cafeto.admin', $roles) ? 'admin' : (in_array('cafeto.instructor', $roles) ? 'instructor' : 'cashier');
+            @endphp
+            <form action="{{ route('cafeto.' . $routePrefix . '.formulations.store') }}" method="POST" class="formulation-form">
                 @csrf
                 <div>
                     <label>{{ __('cafeto::general.Element') }}:</label>
@@ -89,6 +94,7 @@
                         @endforeach
                     </select>
                 </div>
+                
                 <div>
                     <label>{{ __('cafeto::general.Amount') }}:</label>
                     <input type="number" name="amount" value="{{ old('amount') }}" required min="0">
@@ -107,13 +113,18 @@
                                 @endforeach
                             </select>
                             <input type="number" name="ingredients[0][amount]" value="{{ old('ingredients.0.amount') }}" required placeholder="{{ __('cafeto::general.Amount') }}" min="0">
+                            <select name="ingredients[0][unit]" required>
+                                <option value="g" {{ old('ingredients.0.unit') === 'g' ? 'selected' : '' }}>Gramos (g)</option>
+                                <option value="mg" {{ old('ingredients.0.unit') === 'mg' ? 'selected' : '' }}>Miligramos (mg)</option>
+                                <option value="ml" {{ old('ingredients.0.unit') === 'ml' ? 'selected' : '' }}>Mililitros (ml)</option>
+                            </select>
                         </div>
                     </div>
                     <button type="button" onclick="addIngredient()" class="btn-custom">{{ __('cafeto::general.Add Ingredient') }}</button>
                 </div>
                 <div class="text-center" style="margin-top: 20px;">
                     <button type="submit" class="btn-custom">{{ __('cafeto::general.Save') }}</button>
-                    <a href="{{ route('cafeto.' . (Auth::user()->hasPermissionTo('cafeto.admin.formulations') ? 'admin' : (Auth::user()->hasPermissionTo('cafeto.instructor.formulations') ? 'instructor' : 'cashier')) . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
+                    <a href="{{ route('cafeto.' . $routePrefix . '.formulations.index') }}" class="btn-custom">{{ __('cafeto::general.Back') }}</a>
                 </div>
             </form>
         </div>
@@ -132,6 +143,11 @@
                     @endforeach
                 </select>
                 <input type="number" name="ingredients[${ingredientCount}][amount]" required placeholder="{{ __('cafeto::general.Amount') }}" min="0">
+                <select name="ingredients[${ingredientCount}][unit]" required>
+                    <option value="g">Gramos (g)</option>
+                    <option value="mg">Miligramos (mg)</option>
+                    <option value="ml">Mililitros (ml)</option>
+                </select>
             `;
             container.appendChild(div);
             ingredientCount++;

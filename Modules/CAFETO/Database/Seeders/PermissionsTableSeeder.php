@@ -612,6 +612,15 @@ class PermissionsTableSeeder extends Seeder
         ]);
         $permissions_admin[] = $permission->id;
 
+
+        //Gestion de formulaciones (instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.index'], [
+            'name' => 'Gestión de formulaciones (Instructor)',
+            'description' => 'Permite ver, crear y consultar detalles de formulaciones propias',
+            'description_english' => 'Allows viewing, creating, and viewing details of own formulations',
+            'app_id' => $app->id
+        ]);
+        
         // Gestión de formulaciones (Instructor)
         $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations'], [
             'name' => 'Gestión de formulaciones (Instructor)',
@@ -620,6 +629,70 @@ class PermissionsTableSeeder extends Seeder
             'app_id' => $app->id
         ]);
         $permissions_instructor[] = $permission->id;
+
+        // Gestión de formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.create'], [
+            'name' => 'Gestión de formulaciones (Instructor)',
+            'description' => 'Permite ver, crear y consultar detalles de formulaciones propias',
+            'description_english' => 'Allows viewing, creating, and viewing details of own formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
+        // Guardar formulaciones (Instructor) - Nuevo permiso para la acción store
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.store'], [
+            'name' => 'Guardar formulaciones (Instructor)',
+            'description' => 'Permite guardar nuevas formulaciones',
+            'description_english' => 'Allows saving new formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
+        // Editar formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.edit'], [
+            'name' => 'Editar formulaciones (Instructor)',
+            'description' => 'Permite editar formulaciones',
+            'description_english' => 'Allows editing formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
+        // Actualizar formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.update'], [
+            'name' => 'Actualizar formulaciones (Instructor)',
+            'description' => 'Permite actualizar formulaciones',
+            'description_english' => 'Allows updating formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
+        // Aprobar formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.approve'], [
+            'name' => 'Aprobar formulaciones (Instructor)',
+            'description' => 'Permite aprobar formulaciones',
+            'description_english' => 'Allows approving formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
+        // Eliminar formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.destroy'], [
+            'name' => 'Eliminar formulaciones (Instructor)',
+            'description' => 'Permite eliminar formulaciones',
+            'description_english' => 'Allows deleting formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
+        // Ver detalles de formulaciones (Instructor)
+        $permission = Permission::updateOrCreate(['slug' => 'cafeto.instructor.formulations.show'], [
+            'name' => 'Ver detalles de formulaciones (Instructor)',
+            'description' => 'Permite consultar detalles de formulaciones',
+            'description_english' => 'Allows viewing details of formulations',
+            'app_id' => $app->id
+        ]);
+        $permissions_instructor[] = $permission->id;
+
 
         // Gestión de formulaciones (Cajero)
         $permission = Permission::updateOrCreate(['slug' => 'cafeto.cashier.formulations'], [
