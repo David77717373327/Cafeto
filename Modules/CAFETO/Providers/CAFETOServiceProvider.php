@@ -37,12 +37,7 @@ public function boot(Router $router)
     $router->aliasMiddleware('skip.csrf.formulations', \Modules\CAFETO\Http\Middleware\SkipCsrfForFormulations::class);
 
     // Register Blade components
-    Blade::component('cafeto::formulations.components.form-field', 'cafeto-form-field');
-    Blade::component('cafeto::formulations.components.ingredient-group', 'cafeto-ingredient-group');
-    Blade::component('cafeto::formulations.components.sticky-footer', 'cafeto-sticky-footer');
-    Blade::component('cafeto::formulations.components.preview-card', 'cafeto-preview-card');
-    Blade::component('cafeto::formulations.components.formulation-row', 'cafeto-formulation-row');
-    Blade::component('cafeto::formulations.components.mobile-card', 'cafeto-mobile-card');
+
 }
 
     /**

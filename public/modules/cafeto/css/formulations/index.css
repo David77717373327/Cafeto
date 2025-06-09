@@ -1,0 +1,139 @@
+/* CSS Variables for consistent theming */
+:root {
+    --dark-bg: #1a1a1a;
+    --darker-bg: rgba(0, 0, 0, 0.71);
+    --gray-bg: #333333;
+    --light-gray-bg: #2a2a2a;
+    --text-light: #fff;
+    --border-color: #333333;
+    --approved-bg: #000000;
+    --pending-bg: #4a4a4a;
+}
+
+/* Sticky table header */
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--dark-bg);
+    color: var(--text-light);
+}
+
+/* Table row hover effect */
+.table-row {
+    transition: background-color 0.3s ease;
+}
+
+.table-row:hover {
+    background-color: var(--gray-bg);
+}
+
+/* Filter bar styling */
+.filter-bar {
+    background: var(--darker-bg);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: var(--text-light);
+}
+
+.filter-bar .input-group-text,
+.filter-bar .form-control,
+.filter-bar .form-select {
+    background: var(--light-gray-bg);
+    color: var(--text-light);
+    border-color: var(--border-color);
+}
+
+/* Details row for expandable content */
+.details-row {
+    display: none;
+    background-color: var(--light-gray-bg);
+    color: var(--text-light);
+}
+
+#filter-element {
+    color: white;
+    caret-color: white;
+}
+
+#filter-element::placeholder {
+    color: white;
+    opacity: 1; /* Asegura que el color sea sólido */
+}
+
+/* Export button styling */
+.btn-export {
+    background: var(--darker-bg);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
+.btn-export:hover {
+    background: var(--gray-bg);
+    color: var(--text-light);
+}
+
+/* Status badge styling */
+.status-badge {
+    font-size: 0.9em;
+    padding: 5px 10px;
+}
+
+.bg-approved {
+    background: var(--approved-bg) !important;
+}
+
+.bg-pending {
+    background: var(--pending-bg) !important;
+}
+
+/* Mobile card view */
+.mobile-card {
+    display: none;
+    border: 1px solid var(--border-color);
+    background: var(--dark-bg);
+    color: var(--text-light);
+    border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.mobile-details {
+    display: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .table-responsive {
+        display: none;
+    }
+    .mobile-card {
+        display: block;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-card {
+        display: none;
+    }
+}
+
+/* Custom card styling */
+.custom-card {
+    background: var(--dark-bg);
+    border: 1px solid var(--border-color);
+}
+
+/* Tooltip styling */
+.tooltip-inner {
+    background: var(--gray-bg);
+    color: var(--text-light);
+}
+
+/* Alert styling */
+.alert-success {
+    background: var(--light-gray-bg);
+    color: var(--text-light);
+    border-color: var(--border-color);
+}

@@ -1,0 +1,120 @@
+/* Existing styles */
+.ingredient-group {
+    transition: all 0.3s ease;
+}
+
+.ingredient-group.dragging {
+    opacity: 0.5;
+    background-color: #333333;
+}
+
+.sticky-footer {
+    position: sticky;
+    bottom: 0;
+    background: #000000; /* Pure black */
+    padding: 15px;
+    border-top: 1px solid #333333;
+    z-index: 100;
+    color: #fff;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+    background: #4a4a4a; /* Dark gray */
+}
+
+.collapsible-header {
+    cursor: pointer;
+    background: #000000;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.preview-card {
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #333333;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.tooltip-inner {
+    background: #000000;
+    color: #fff;
+}
+
+.tooltip .arrow::before {
+    border-top-color: #000000;
+}
+
+.typeahead-list {
+    position: absolute;
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #333333;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 100%;
+}
+
+.typeahead-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.typeahead-item:hover {
+    background: #333333;
+}
+
+.dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* New styles to replace inline styles */
+.card-dark {
+    border: 1px solid #333333;
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.card-dark-inner {
+    background: #1a1a1a;
+    border-color: #333333;
+}
+
+.input-dark {
+    background: #2a2a2a;
+    color: #fff;
+    border-color: #333333;
+}
+
+.input-group-dark {
+    background: #333333;
+    color: #fff;
+}
+
+.alert-dark {
+    background: #2a2a2a;
+    color: #fff;
+    border-color: #333333;
+}
+
+.hr-dark {
+    border-color: #333333;
+}
+
+.label-white {
+    color: #fff;
+}
+
+.btn-dark-custom {
+    background: #000000;
+    color: #fff;
+    border: 1px solid #333333;
+}

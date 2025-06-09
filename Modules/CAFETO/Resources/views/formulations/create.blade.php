@@ -1,98 +1,28 @@
 @extends('cafeto::layouts.master')
 
 @push('head')
+    <link rel="stylesheet" href="{{ asset('modules/cafeto/css/formulations/create.css') }}">
     @livewireStyles()
-    <style>
-        .ingredient-group {
-            transition: all 0.3s ease;
-        }
-        .ingredient-group.dragging {
-            opacity: 0.5;
-            background-color: #333333;
-        }
-        .sticky-footer {
-            position: sticky;
-            bottom: 0;
-            background: #000000; /* Pure black */
-            padding: 15px;
-            border-top: 1px solid #333333;
-            z-index: 100;
-            color: #fff;
-        }
-        .progress-bar {
-            transition: width 0.3s ease;
-            background: #4a4a4a; /* Dark gray */
-        }
-        .collapsible-header {
-            cursor: pointer;
-            background: #000000;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .preview-card {
-            background: #1a1a1a;
-            color: #fff;
-            border: 1px solid #333333;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .tooltip-inner {
-            background: #000000;
-            color: #fff;
-        }
-        .tooltip .arrow::before {
-            border-top-color: #000000;
-        }
-        .typeahead-list {
-            position: absolute;
-            background: #2a2a2a;
-            color: #fff;
-            border: 1px solid #333333;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            width: 100%;
-        }
-        .typeahead-item {
-            padding: 8px;
-            cursor: pointer;
-        }
-        .typeahead-item:hover {
-            background: #333333;
-        }
-        .dark-mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-    </style>
 @endpush
 
 @push('breadcrumbs')
     <li class="breadcrumb-item">
         <a href="{{ route('cafeto.' . getRoleRouteName(Route::currentRouteName()) . '.formulations.index') }}"
-           class="text-decoration-none">{{ trans('cafeto::formulations.Breadcrumb_Formulations_1') }}</a>
+        class="text-decoration-none">{{ trans('cafeto::formulations.Breadcrumb_Formulations_1') }}</a>
     </li>
     <li class="breadcrumb-item active">{{ trans('cafeto::formulations.Breadcrumb_Active_Create_Formulations_1') }}</li>
 @endpush
 
 @section('content')
-    <button class="btn btn-dark dark-mode-toggle" onclick="toggleDarkMode()" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ trans('cafeto::formulations.Tooltip_Dark_Mode') }}">
-        <i class="fas fa-moon"></i>
-    </button>
-
     <div class="container">
-        <div class="card card-dark shadow-sm" style="border: 1px solid #333333; background: #1a1a1a; color: #fff;" data-aos="fade-up">
+        <div class="card card-dark shadow-sm" data-aos="fade-up">
             <div class="card-body">
                 <div class="progress mb-3" style="height: 25px;">
                     <div class="progress-bar" role="progressbar" style="width: 0%;" id="form-progress">0%</div>
                 </div>
 
                 @if ($errors->any())
-                    <div class="alert alert-danger" data-aos="fade-in" style="background: #2a2a2a; color: #fff; border-color: #333333;">
+                    <div class="alert alert-danger alert-dark" data-aos="fade-in">
                         <ul class="mb-0">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -120,12 +50,12 @@
                                         </label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                <span class="input-group-text input-group-dark">
                                                     <i class="fa-solid fa-user-tag"></i>
                                                 </span>
                                             </div>
                                             <input type="hidden" name="person_id" value="{{ Auth::user()->person_id }}">
-                                            <input type="text" class="form-control" style="background: #2a2a2a; color: #fff; border-color: #333333;" value="{{ Auth::user()->person->full_name }}" readonly>
+                                            <input type="text" class="form-control input-dark" value="{{ Auth::user()->person->full_name }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -137,11 +67,11 @@
                                         </label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                <span class="input-group-text input-group-dark">
                                                     <i class="fas fa-list"></i>
                                                 </span>
                                             </div>
-                                            <select name="element_id" class="form-select" style="background: #2a2a2a; color: #fff; border-color: #333333;" required onchange="updatePreview()">
+                                            <select name="element_id" class="form-select input-dark" required onchange="updatePreview()">
                                                 @foreach ($elements as $element)
                                                     <option value="{{ $element->id }}" {{ old('element_id') == $element->id ? 'selected' : '' }}>{{ $element->name }}</option>
                                                 @endforeach
@@ -157,11 +87,11 @@
                                         </label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                <span class="input-group-text input-group-dark">
                                                     <i class="fa-solid fa-calendar-days"></i>
                                                 </span>
                                             </div>
-                                            <input type="date" name="date" value="{{ old('date', \Carbon\Carbon::now()->toDateString()) }}" class="form-control text-center" style="background: #2a2a2a; color: #fff; border-color: #333333;" required onchange="updatePreview()">
+                                            <input type="date" name="date" value="{{ old('date', \Carbon\Carbon::now()->toDateString()) }}" class="form-control text-center input-dark" required onchange="updatePreview()">
                                         </div>
                                     </div>
                                 </div>
@@ -176,59 +106,59 @@
                                         </label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                <span class="input-group-text input-group-dark">
                                                     <i class="far fa-keyboard"></i>
                                                 </span>
                                             </div>
-                                            <input type="number" id="amount" name="amount" value="{{ old('amount', 1) }}" class="form-control text-center" style="background: #2a2a2a; color: #fff; border-color: #333333;" required min="0" oninput="validateAmount(this); updatePreview()">
+                                            <input type="number" id="amount" name="amount" value="{{ old('amount', 1) }}" class="form-control text-center input-dark" required min="0" oninput="validateAmount(this); updatePreview()">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr style="border-color: #333333;">
+                            <hr class="hr-dark">
 
                             <div class="col-md-12" data-aos="fade-up" data-aos-delay="200">
-                                <div class="card" style="background: #1a1a1a; border-color: #333333;">
+                                <div class="card card-dark-inner">
                                     <div class="collapsible-header" data-bs-toggle="collapse" data-bs-target="#ingredients-collapse">
-                                        <h5 class="mb-0" style="color: #fff;">{{ trans('cafeto::formulations.Ingredients') }} <i class="fas fa-chevron-down float-end"></i></h5>
+                                        <h5 class="mb-0">{{ trans('cafeto::formulations.Ingredients') }} <i class="fas fa-chevron-down float-end"></i></h5>
                                     </div>
                                     <div id="ingredients-collapse" class="collapse show">
                                         <div class="card-body" id="ingredients">
                                             <div class="row ingredient-group mb-3" draggable="true">
                                                 <div class="col-md-4">
-                                                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Element') }}</label>
+                                                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Element') }}</label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
-                                                            <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                            <span class="input-group-text input-group-dark">
                                                                 <i class="fas fa-list"></i>
                                                             </span>
                                                         </div>
-                                                        <input type="text" class="form-control typeahead" name="ingredients[0][element_name]" style="background: #2a2a2a; color: #fff; border-color: #333333;" placeholder="{{ trans('cafeto::formulations.Search_Element') }}" required oninput="updatePreview()">
+                                                        <input type="text" class="form-control typeahead input-dark" name="ingredients[0][element_name]" placeholder="{{ trans('cafeto::formulations.Search_Element') }}" required oninput="updatePreview()">
                                                         <input type="hidden" name="ingredients[0][element_id]">
                                                         <div class="typeahead-list" style="display: none;"></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Amount') }}</label>
+                                                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Amount') }}</label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
-                                                            <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                            <span class="input-group-text input-group-dark">
                                                                 <i class="far fa-keyboard"></i>
                                                             </span>
                                                         </div>
-                                                        <input type="number" name="ingredients[0][amount]" value="{{ old('ingredients.0.amount') }}" class="form-control" style="background: #2a2a2a; color: #fff; border-color: #333333;" required placeholder="{{ trans('cafeto::formulations.Amount') }}" min="0" oninput="validateAmount(this); updatePreview()">
+                                                        <input type="number" name="ingredients[0][amount]" value="{{ old('ingredients.0.amount') }}" class="form-control input-dark" required placeholder="{{ trans('cafeto::formulations.Amount') }}" min="0" oninput="validateAmount(this); updatePreview()">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Unit') }}</label>
+                                                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Unit') }}</label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
-                                                            <span class="input-group-text" style="background: #333333; color: #fff;">
+                                                            <span class="input-group-text input-group-dark">
                                                                 <i class="fas fa-list"></i>
                                                             </span>
                                                         </div>
-                                                        <select name="ingredients[0][unit]" class="form-select" style="background: #2a2a2a; color: #fff; border-color: #333333;" required onchange="updatePreview()">
+                                                        <select name="ingredients[0][unit]" class="form-select input-dark" required onchange="updatePreview()">
                                                             <option value="g" {{ old('ingredients.0.unit') === 'g' ? 'selected' : '' }}>{{ trans('cafeto::formulations.Grams') }}</option>
                                                             <option value="mg" {{ old('ingredients.0.unit') === 'mg' ? 'selected' : '' }}>{{ trans('cafeto::formulations.Milligrams') }}</option>
                                                             <option value="ml" {{ old('ingredients.0.unit') === 'ml' ? 'selected' : '' }}>{{ trans('cafeto::formulations.Milliliters') }}</option>
@@ -236,7 +166,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Convert') }}</label>
+                                                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Convert') }}</label>
                                                     <button type="button" class="btn btn-outline-light btn-sm d-block" onclick="convertUnit(0)" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ trans('cafeto::formulations.Tooltip_Convert') }}">Convertir</button>
                                                 </div>
                                                 <div class="col-md-2">
@@ -247,7 +177,7 @@
                                         </div>
                                         <div class="row mt-3">
                                             <div class="col-md-12 text-center">
-                                                <button type="button" onclick="addIngredient()" class="btn btn-dark btn-sm-lg" style="background: #000000; color: #fff; border: 1px solid #333333;">{{ trans('cafeto::formulations.Add Ingredient') }}</button>
+                                                <button type="button" onclick="addIngredient()" class="btn btn-dark btn-sm-lg btn-dark-custom">{{ trans('cafeto::formulations.Add Ingredient') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -257,10 +187,10 @@
                             <div class="sticky-footer mt-3" data-aos="fade-up" data-aos-delay="300">
                                 <div class="row">
                                     <div class="col-auto mx-auto">
-                                        <button type="submit" class="btn btn-dark form-control text-truncate" style="background: #000000; color: #fff; border: 1px solid #333333;" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ trans('cafeto::formulations.Tooltip_Save') }}" onclick="checkProgress(event)">
+                                        <button type="submit" class="btn btn-dark form-control text-truncate btn-dark-custom" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ trans('cafeto::formulations.Tooltip_Save') }}" onclick="checkProgress(event)">
                                             {{ trans('cafeto::formulations.Save') }} <i class="fas fa-plus"></i>
                                         </button>
-                                        <a href="{{ route('cafeto.' . $routePrefix . '.formulations.index') }}" class="btn btn-dark form-control mt-2" style="background: #000000; color: #fff; border: 1px solid #333333;" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ trans('cafeto::formulations.Tooltip_Back') }}">
+                                        <a href="{{ route('cafeto.' . $routePrefix . '.formulations.index') }}" class="btn btn-dark form-control mt-2 btn-dark-custom" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ trans('cafeto::formulations.Tooltip_Back') }}">
                                             {{ trans('cafeto::formulations.Back') }}
                                         </a>
                                     </div>
@@ -292,7 +222,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script>
         AOS.init();
-        let isDarkMode = true;
 
         // Form Progress Indicator
         function updateProgress() {
@@ -366,38 +295,38 @@
             div.draggable = true;
             div.innerHTML = `
                 <div class="col-md-4">
-                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Element') }}</label>
+                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Element') }}</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="background: #333333; color: #fff;">
+                            <span class="input-group-text input-group-dark">
                                 <i class="fas fa-list"></i>
                             </span>
                         </div>
-                        <input type="text" class="form-control typeahead" name="ingredients[${ingredientCount}][element_name]" style="background: #2a2a2a; color: #fff; border-color: #333333;" placeholder="{{ trans('cafeto::formulations.Search_Element') }}" required oninput="updatePreview()">
+                        <input type="text" class="form-control typeahead input-dark" name="ingredients[${ingredientCount}][element_name]" placeholder="{{ trans('cafeto::formulations.Search_Element') }}" required oninput="updatePreview()">
                         <input type="hidden" name="ingredients[${ingredientCount}][element_id]">
                         <div class="typeahead-list" style="display: none;"></div>
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Amount') }}</label>
+                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Amount') }}</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="background: #333333; color: #fff;">
+                            <span class="input-group-text input-group-dark">
                                 <i class="far fa-keyboard"></i>
                             </span>
                         </div>
-                        <input type="number" name="ingredients[${ingredientCount}][amount]" class="form-control" style="background: #2a2a2a; color: #fff; border-color: #333333;" required placeholder="{{ trans('cafeto::formulations.Amount') }}" min="0" oninput="validateAmount(this); updatePreview()">
+                        <input type="number" name="ingredients[${ingredientCount}][amount]" class="form-control input-dark" required placeholder="{{ trans('cafeto::formulations.Amount') }}" min="0" oninput="validateAmount(this); updatePreview()">
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Unit') }}</label>
+                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Unit') }}</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="background: #333333; color: #fff;">
+                            <span class="input-group-text input-group-dark">
                                 <i class="fas fa-list"></i>
                             </span>
                         </div>
-                        <select name="ingredients[${ingredientCount}][unit]" class="form-select" style="background: #2a2a2a; color: #fff; border-color: #333333;" required onchange="updatePreview()">
+                        <select name="ingredients[${ingredientCount}][unit]" class="form-select input-dark" required onchange="updatePreview()">
                             <option value="g">{{ trans('cafeto::formulations.Grams') }}</option>
                             <option value="mg">{{ trans('cafeto::formulations.Milligrams') }}</option>
                             <option value="ml">{{ trans('cafeto::formulations.Milliliters') }}</option>
@@ -405,7 +334,7 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <label class="mt-3" style="color: #fff;">{{ trans('cafeto::formulations.Convert') }}</label>
+                    <label class="mt-3 label-white">{{ trans('cafeto::formulations.Convert') }}</label>
                     <button type="button" class="btn btn-outline-light btn-sm d-block" onclick="convertUnit(${ingredientCount})" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ trans('cafeto::formulations.Tooltip_Convert') }}">Convertir</button>
                 </div>
                 <div class="col-md-2">
@@ -549,35 +478,6 @@
             amountInput.value = amount.toFixed(2);
             unitSelect.value = newUnit;
             updatePreview();
-        }
-
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
-            const card = document.querySelector('.card');
-            const inputs = document.querySelectorAll('input, select');
-            const previewCard = document.querySelector('.preview-card');
-            if (isDarkMode) {
-                card.style.background = '#1a1a1a';
-                card.style.color = '#fff';
-                inputs.forEach(input => {
-                    input.style.background = '#2a2a2a';
-                    input.style.color = '#fff';
-                    input.style.borderColor = '#333333';
-                });
-                previewCard.style.background = '#1a1a1a';
-                previewCard.style.color = '#fff';
-            } else {
-                card.style.background = '#fff';
-                card.style.color = '#000';
-                inputs.forEach(input => {
-                    input.style.background = '#fff';
-                    input.style.color = '#000';
-                    input.style.borderColor = '#ccc';
-                });
-                previewCard.style.background = '#f9f9f9';
-                previewCard.style.color = '#000';
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
