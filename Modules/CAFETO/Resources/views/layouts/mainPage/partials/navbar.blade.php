@@ -164,11 +164,11 @@
                                         </div>
                                         <!-- Column #6 -->
                                         <div class="col-md-3">
-                                            <a href="{{ route('cafeto.views.formulations.index') }}">{{ trans('cafeto::general.navbarForm') }}</a>
+                                            <a href="{{ route('cafeto.admin.formulations.index') }}">{{ trans('cafeto::general.navbarForm') }}</a>
                                             <ul>
                                                 @if (Auth::user()->havePermission('cafeto.admin.formulations'))
                                                     <li>
-                                                        <a href="{{ route('cafeto.views.formulations.index') }}">
+                                                        <a href="{{ route('cafeto.admin.formulations.index') }}">
                                                             <i class="fa-solid fa-flask"></i>{{ trans('cafeto::general.Formulations') }}
                                                         </a>
                                                     </li>
@@ -190,7 +190,7 @@
                 @if (Route::is('cafeto.cashier.*'))
                     <li class="has-dropdown mega-dropdown">
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle menu-item"><i
-                                class="fa-solid fa-sitemap"></i> {{ trans('cafeto::general.Administration') }}</a>
+                                class="fa-solid fa-sitemap"></i> {{ trans('cafeto::general.Cashier') }}</a>
                         <ul class="dropdown-menu mega-dropdown-menu">
                             <li>
                                 <div class="container">
@@ -203,6 +203,13 @@
                                                     <li>
                                                         <a href="{{ route('cafeto.cashier.inventory.index') }}">
                                                             <i class="fa-solid fa-boxes-stacked"></i>{{ trans('cafeto::general.Inventory') }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                                @if (Auth::user()->havePermission('cafeto.cashier.element.index'))
+                                                    <li>
+                                                        <a href="{{ route('cafeto.cashier.element.index') }}">
+                                                            <i class="fa-regular fa-image"></i>{{ trans('cafeto::general.Elements') }}
                                                         </a>
                                                     </li>
                                                 @endif
@@ -276,7 +283,7 @@
                                         </div>
                                         <!-- Column #6 -->
                                         <div class="col-md-3">
-                                            <a href="#">{{ trans('cafeto::general.Formulations') }}</a>
+                                            <a href="{{ route('cafeto.cashier.formulations.index') }}">{{ trans('cafeto::general.navbarForm') }}</a>
                                             <ul>
                                                 @if (Auth::user()->havePermission('cafeto.cashier.formulations'))
                                                     <li>

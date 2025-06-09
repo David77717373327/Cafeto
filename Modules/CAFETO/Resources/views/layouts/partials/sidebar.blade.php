@@ -69,17 +69,6 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                 data-accordion="false">
-                <!-- Debug: Permission Check -->
-                @if (Route::is('cafeto.cashier.*'))
-                    <li class="nav-item">
-                        <p>Debug: Cashier route detected, Permission cafeto.cashier.formulations: {{ Auth::user()->havePermission('cafeto.cashier.formulations') ? 'true' : 'false' }}</p>
-                    </li>
-                @endif
-                @if (Route::is('cafeto.admin.*') || Route::is('cafeto.view.*'))
-                    <li class="nav-item">
-                        <p>Debug: Admin route detected, Permission cafeto.admin.formulations: {{ Auth::user()->havePermission('cafeto.admin.formulations') ? 'true' : 'false' }}</p>
-                    </li>
-                @endif
 
                 <!-- Menú de opciones públicas -->
                 @if (Route::is('cefa.cafeto.*'))

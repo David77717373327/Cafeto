@@ -1,10 +1,11 @@
 <?php
 
+// Translation file for navigation and related components in English
 return [
     // Navbar
     'Home'             => 'Home',
     'admin'            => 'Administrator',
-    'cashier'          => 'Cashier/Intern',
+    'Cashier'          => 'Cashier/Intern',
     'Language'         => 'Internationalization',
     'Full Screen Mode' => 'Full Screen Mode',
     'Apps'             => 'Applications',
@@ -33,6 +34,10 @@ return [
     'Spanish'          => 'Spanish',
     'RoleCashier'      => 'Cashier Panel',
     'RoleIntern'       => 'Intern Panel',
+    'Formulations'     => 'Formulations',
+    'Create Formulation' => 'Create Formulation',
+    'NavbarForm'       => 'Form',
+    
 
     // Siderbar
     'Sales Point'      => 'Point of Sale',
@@ -55,7 +60,7 @@ return [
 
     // Tooltips
     'InSession'        => 'Access / Log In',
-    'ExitSession'      => 'Exit',
+    'ExitSession'      => 'Log Out',
 
     // General
     'general' => [
@@ -76,33 +81,10 @@ return [
         'Save'                 => 'Save',
         'Update'               => 'Update',
         'Back'                 => 'Back',
-        'Formulations'         => 'Formulations',
-        'Create Formulation'   => 'Create Formulation',
         'Formulation Details'  => 'Formulation Details',
         'Price'                => 'Price',
         'Register Sale'        => 'Register Sale',
-        'formulacion' => [
-            'Element'              => 'Element',
-            'Amount'               => 'Amount',
-            'Date'                 => 'Date',
-            'Status'               => 'Status',
-            'Actions'              => 'Actions',
-            'View'                 => 'View',
-            'Edit'                 => 'Edit',
-            'Delete'               => 'Delete',
-            'Approve'              => 'Approve',
-            'Create New Formulation' => 'Create New Formulation',
-            'Are you sure?'        => 'Are you sure?',
-            'No formulations found' => 'No formulations found',
-            'Create Formulation'   => 'Create Formulation',
-            'Ingredients'          => 'Ingredients',
-            'Add Ingredient'       => 'Add Ingredient',
-            'Save'                 => 'Save',
-            'Back'                 => 'Back',
-            'Update'               => 'Update',
-            'Formulation Details'  => 'Formulation Details',
-            'units'                => 'units',
-        ],
+        'navbarForm'           => 'Formulation',
     ],
 
     // Controllers

@@ -5,6 +5,7 @@ namespace Modules\CAFETO\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Blade;
 
 class CAFETOServiceProvider extends ServiceProvider
 {
@@ -27,16 +28,22 @@ class CAFETOServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Router $router)
-    {
-        $this->registerTranslations();
-        $this->registerConfig();
-        $this->registerViews();
-        $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+public function boot(Router $router)
+{
+    $this->registerTranslations();
+    $this->registerConfig();
+    $this->registerViews();
+    $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+    $router->aliasMiddleware('skip.csrf.formulations', \Modules\CAFETO\Http\Middleware\SkipCsrfForFormulations::class);
 
-        // Register middleware
-        $router->aliasMiddleware('skip.csrf.formulations', \Modules\CAFETO\Http\Middleware\SkipCsrfForFormulations::class);
-    }
+    // Register Blade components
+    Blade::component('cafeto::formulations.components.form-field', 'cafeto-form-field');
+    Blade::component('cafeto::formulations.components.ingredient-group', 'cafeto-ingredient-group');
+    Blade::component('cafeto::formulations.components.sticky-footer', 'cafeto-sticky-footer');
+    Blade::component('cafeto::formulations.components.preview-card', 'cafeto-preview-card');
+    Blade::component('cafeto::formulations.components.formulation-row', 'cafeto-formulation-row');
+    Blade::component('cafeto::formulations.components.mobile-card', 'cafeto-mobile-card');
+}
 
     /**
      * Register any application services.

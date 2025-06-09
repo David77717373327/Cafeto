@@ -4,7 +4,7 @@ return [
     // Navbar
     'Home'             => 'Inicio',
     'admin'            => 'Administrador',
-    'cashier'          => 'Cajero/Pasante',
+    'Cashier'          => 'Cajero/Pasante',
     'Language'         => 'Internacionalización',
     'Full Screen Mode' => 'Modo Pantalla Completa',
     'Apps'             => 'Aplicaciones',
@@ -34,7 +34,8 @@ return [
     'RoleCashier'      => 'Panel para Cajero',
     'RoleIntern'       => 'Panel para Pasante',
     'Formulations'     => 'Formulaciones',
-    'Create Formulation'   => 'Crear Formulación',
+    'Create Formulation' => 'Crear Formulación',
+    'navbarForm' => 'Formulaciones',
 
     // Siderbar
     'Sales Point'      => 'Punto de Venta',
@@ -82,28 +83,6 @@ return [
         'Price'                => 'Precio',
         'Register Sale'        => 'Registrar Venta',
         'navbarForm'           => 'Formulario',
-        'formulacion' => [
-            'Element'              => 'Elemento',
-            'Amount'               => 'Cantidad',
-            'Date'                 => 'Fecha',
-            'Status'               => 'Estado',
-            'Actions'              => 'Acciones',
-            'View'                 => 'Ver',
-            'Edit'                 => 'Editar',
-            'Delete'               => 'Eliminar',
-            'Approve'              => 'Aprobar',
-            'Create New Formulation' => 'Crear Nueva Formulación',
-            'Are you sure?'        => '¿Estás seguro?',
-            'No formulations found' => 'No se encontraron formulaciones',
-            'Create Formulation'   => 'Crear Formulación',
-            'Ingredients'          => 'Ingredientes',
-            'Add Ingredient'       => 'Agregar Ingrediente',
-            'Save'                 => 'Guardar',
-            'Back'                 => 'Volver',
-            'Update'               => 'Actualizar',
-            'Formulation Details'  => 'Detalles de la Formulación',
-            'units'                => 'unidades',
-        ],
     ],
 
     // Controllers
